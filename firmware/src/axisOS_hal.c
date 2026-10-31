@@ -1,9 +1,16 @@
-/**
- * @file    axisOS_hal.c
- * @brief   AxisOS HAL Implementation — Pico 2W
- *
- * Copyright (c) 2026 AxisOS Project
- * SPDX-License-Identifier: MIT
+/*
+ * ============================================================================
+ * File:        firmware/src/axisOS_hal.c
+ * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
+ * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
+ * Date:        2026-10-30
+ * Version:     v1.7.0-Silicon
+ * Description: AxisOS Hardware Abstraction Layer implementation for Pico 2 W
+ *              (GPIO, CYW43 LED, ADC, I2C, and NULL-safe SPI transfers).
+ * Changelog:
+ *   - 2026-10-30 (MFC/AGY): Fixed NULL tx/rx pointer dereference in
+ *     hal_spi_transfer() by branching on (tx && rx), tx-only, and rx-only.
+ * ============================================================================
  */
 
 #include <stdio.h>
@@ -101,6 +108,7 @@ axisOS_status_t hal_i2c_init(uint8_t i2c_id, uint8_t sda_pin,
 
 axisOS_status_t hal_i2c_write(uint8_t i2c_id, uint8_t addr,
                                const uint8_t *buf, size_t len) {
+    if (!buf || len == 0) return AXISOS_ERR_PARAM;
     i2c_inst_t *inst = (i2c_id == 0) ? i2c0 : i2c1;
     int rc = i2c_write_blocking(inst, addr, buf, len, false);
     return (rc == (int)len) ? AXISOS_OK : AXISOS_ERR_IO;
@@ -108,6 +116,7 @@ axisOS_status_t hal_i2c_write(uint8_t i2c_id, uint8_t addr,
 
 axisOS_status_t hal_i2c_read(uint8_t i2c_id, uint8_t addr,
                               uint8_t *buf, size_t len) {
+    if (!buf || len == 0) return AXISOS_ERR_PARAM;
     i2c_inst_t *inst = (i2c_id == 0) ? i2c0 : i2c1;
     int rc = i2c_read_blocking(inst, addr, buf, len, false);
     return (rc == (int)len) ? AXISOS_OK : AXISOS_ERR_IO;
@@ -129,9 +138,16 @@ axisOS_status_t hal_spi_init(uint8_t spi_id, uint8_t sck_pin,
 
 axisOS_status_t hal_spi_transfer(uint8_t spi_id, uint8_t cs_pin,
                                   const uint8_t *tx, uint8_t *rx, size_t len) {
+    if ((!tx && !rx) || len == 0) return AXISOS_ERR_PARAM;
     spi_inst_t *inst = (spi_id == 0) ? spi0 : spi1;
     gpio_put(cs_pin, 0);
-    spi_write_read_blocking(inst, tx, rx, len);
+    if (tx && rx) {
+        spi_write_read_blocking(inst, tx, rx, len);
+    } else if (tx) {
+        spi_write_blocking(inst, tx, len);
+    } else {
+        spi_read_blocking(inst, 0x00, rx, len);
+    }
     gpio_put(cs_pin, 1);
     return AXISOS_OK;
 }
@@ -142,7 +158,7 @@ axisOS_status_t hal_spi_transfer(uint8_t spi_id, uint8_t cs_pin,
 axisOS_status_t hal_init(void) {
     hal_adc_init(4); /* enable onboard temp sensor */
     hal_led_set(false);
-    LOG_I(TAG, "HAL ready. Core temp: %.1f °C", hal_adc_read_temp_c());
+    LOG_I(TAG, "HAL ready. Core temp: %.1f C", hal_adc_read_temp_c());
     return AXISOS_OK;
 }
 

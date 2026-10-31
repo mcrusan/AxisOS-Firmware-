@@ -1,11 +1,23 @@
+# ==============================================================================
+# File:        firmware/CMakeLists.txt
+# Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
+# Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
+# Date:        2026-10-30
+# Version:     v1.7.0-Silicon
+# Description: CMake build configuration for AxisOS Raspberry Pi Pico 2 W
+#              (RP2350) firmware with include/ and config/ search paths.
+# Changelog:
+#   - 2026-10-30 (MFC/AGY): Added ${CMAKE_CURRENT_LIST_DIR}/config to
+#     target_include_directories() and bumped version to 1.7.0.
+# ==============================================================================
 cmake_minimum_required(VERSION 3.20)
 
 # Pull in Pico SDK (must be before project())
 include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
 project(axisOS
-    VERSION     1.4.0
-    DESCRIPTION "AxisOS — Pico 2W Firmware"
+    VERSION     1.7.0
+    DESCRIPTION "Crusan & Co. // AxisOS — Pico 2W Firmware"
     LANGUAGES   C CXX ASM
 )
 
@@ -51,6 +63,7 @@ add_executable(axisOS ${AXISOS_SOURCES})
 
 target_include_directories(axisOS PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/include
+    ${CMAKE_CURRENT_LIST_DIR}/config
 )
 
 # -----------------------------------------------------------------------

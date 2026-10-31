@@ -1,15 +1,23 @@
-/**
- * @file    axisOS_wifi.c
- * @brief   AxisOS Wi-Fi Manager Implementation (CYW43 / lwIP)
- *
- * Copyright (c) 2026 AxisOS Project
- * SPDX-License-Identifier: MIT
+/*
+ * ============================================================================
+ * File:        firmware/src/axisOS_wifi.c
+ * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
+ * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
+ * Date:        2026-10-30
+ * Version:     v1.7.0-Silicon
+ * Description: AxisOS Wi-Fi Manager implementation (CYW43 / lwIP) with
+ *              watchdog-safe connection handling.
+ * Changelog:
+ *   - 2026-10-30 (MFC/AGY): Added hardware watchdog refresh around CYW43
+ *     Wi-Fi connect attempts so slow handshakes never trigger WDT resets.
+ * ============================================================================
  */
 
 #include <string.h>
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
+#include "hardware/watchdog.h"
 #include "axisOS_wifi.h"
 #include "axisOS_core.h"
 
@@ -18,10 +26,10 @@
 /* -----------------------------------------------------------------------
  *  Private state
  * --------------------------------------------------------------------- */
-static wifi_state_t   s_state     = WIFI_STATE_IDLE;
-static wifi_event_cb_t s_event_cb = NULL;
-static void          *s_event_ctx = NULL;
-static char           s_ip_buf[16] = {0};
+static wifi_state_t    s_state     = WIFI_STATE_IDLE;
+static wifi_event_cb_t s_event_cb  = NULL;
+static void           *s_event_ctx = NULL;
+static char            s_ip_buf[16] = {0};
 
 /* -----------------------------------------------------------------------
  *  Helpers
@@ -48,8 +56,11 @@ axisOS_status_t wifi_connect(const char *ssid, const char *password) {
     LOG_I(TAG, "Connecting to SSID: %s ...", ssid);
     set_state(WIFI_STATE_CONNECTING);
 
-    int rc = cyw43_arch_wifi_connect_timeout_ms(ssid, password,
-                 CYW43_AUTH_WPA2_AES_PSK, WIFI_CONNECT_TIMEOUT_MS);
+    watchdog_update();
+    uint32_t auth = (password && strlen(password) > 0) ? CYW43_AUTH_WPA2_AES_PSK : CYW43_AUTH_OPEN;
+    int rc = cyw43_arch_wifi_connect_timeout_ms(ssid, password, auth, WIFI_CONNECT_TIMEOUT_MS);
+    watchdog_update();
+
     if (rc != 0) {
         LOG_E(TAG, "Connection failed (err=%d).", rc);
         set_state(WIFI_STATE_ERROR);
@@ -59,8 +70,10 @@ axisOS_status_t wifi_connect(const char *ssid, const char *password) {
     /* Cache IP */
     uint32_t ip = cyw43_state.netif[0].ip_addr.addr;
     snprintf(s_ip_buf, sizeof(s_ip_buf), "%lu.%lu.%lu.%lu",
-             (ip)      & 0xFF, (ip >> 8)  & 0xFF,
-             (ip >> 16) & 0xFF, (ip >> 24) & 0xFF);
+             (unsigned long)((ip)       & 0xFF),
+             (unsigned long)((ip >> 8)  & 0xFF),
+             (unsigned long)((ip >> 16) & 0xFF),
+             (unsigned long)((ip >> 24) & 0xFF));
 
     LOG_I(TAG, "Connected. IP: %s  RSSI: %d dBm", s_ip_buf, wifi_get_rssi());
     set_state(WIFI_STATE_CONNECTED);

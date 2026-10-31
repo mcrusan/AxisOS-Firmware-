@@ -1,9 +1,14 @@
-/**
- * @file    axisOS_core.h
- * @brief   AxisOS Core Subsystem API
- *
- * Copyright (c) 2026 AxisOS Project
- * SPDX-License-Identifier: MIT
+/*
+ * ============================================================================
+ * File:        firmware/include/axisOS_core.h
+ * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
+ * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
+ * Date:        2026-10-30
+ * Version:     v1.7.0-Silicon
+ * Description: AxisOS core subsystem API (status codes, watchdog, tick, log).
+ * Changelog:
+ *   - 2026-10-30 (MFC/AGY): Standardized Crusan & Co. SOP header.
+ * ============================================================================
  */
 
 #ifndef AXISOS_CORE_H

@@ -1,9 +1,16 @@
-/**
- * @file    axisOS_tasks.c
- * @brief   AxisOS Cooperative Task Scheduler Implementation
- *
- * Copyright (c) 2026 AxisOS Project
- * SPDX-License-Identifier: MIT
+/*
+ * ============================================================================
+ * File:        firmware/src/axisOS_tasks.c
+ * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
+ * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
+ * Date:        2026-10-30
+ * Version:     v1.7.0-Silicon
+ * Description: AxisOS cooperative task scheduler with full slot reclamation on
+ *              tasks_unregister().
+ * Changelog:
+ *   - 2026-10-30 (MFC/AGY): Fixed task slot leak in tasks_register() by
+ *     reclaiming inactive (!active) slots before allocating new ones.
+ * ============================================================================
  */
 
 #include <string.h>
@@ -47,10 +54,20 @@ axisOS_status_t tasks_init(void) {
 
 axisOS_status_t tasks_register(const char *name, task_fn_t fn, void *ctx,
                                 uint32_t period_ms, task_id_t *out_id) {
-    if (!s_ready || !fn || !out_id)       return AXISOS_ERR_PARAM;
-    if (s_task_count >= AXISOS_MAX_TASKS) return AXISOS_ERR_NOMEM;
+    if (!s_ready || !fn || !out_id) return AXISOS_ERR_PARAM;
 
-    task_entry_t *t = &s_tasks[s_task_count];
+    /* Find first inactive slot (reclaiming any slot freed by tasks_unregister) */
+    uint8_t slot = AXISOS_TASK_INVALID;
+    for (uint8_t i = 0; i < AXISOS_MAX_TASKS; i++) {
+        if (!s_tasks[i].active) {
+            slot = i;
+            break;
+        }
+    }
+    if (slot == AXISOS_TASK_INVALID) return AXISOS_ERR_NOMEM;
+
+    task_entry_t *t = &s_tasks[slot];
+    memset(t, 0, sizeof(task_entry_t));
     strncpy(t->name, name ? name : "unnamed", AXISOS_TASK_NAME_LEN - 1);
     t->fn          = fn;
     t->ctx         = ctx;
@@ -60,7 +77,10 @@ axisOS_status_t tasks_register(const char *name, task_fn_t fn, void *ctx,
     t->suspended   = false;
     t->run_count   = 0;
 
-    *out_id = s_task_count++;
+    if (slot >= s_task_count) {
+        s_task_count = slot + 1;
+    }
+    *out_id = slot;
     LOG_I(TAG, "Registered task [%u] '%s' @ %lu ms", *out_id, t->name, (unsigned long)period_ms);
     return AXISOS_OK;
 }
@@ -80,20 +100,20 @@ void tasks_run(void) {
 }
 
 axisOS_status_t tasks_suspend(task_id_t id) {
-    if (id >= s_task_count) return AXISOS_ERR_NOT_FOUND;
+    if (id >= s_task_count || !s_tasks[id].active) return AXISOS_ERR_NOT_FOUND;
     s_tasks[id].suspended = true;
     return AXISOS_OK;
 }
 
 axisOS_status_t tasks_resume(task_id_t id) {
-    if (id >= s_task_count) return AXISOS_ERR_NOT_FOUND;
+    if (id >= s_task_count || !s_tasks[id].active) return AXISOS_ERR_NOT_FOUND;
     s_tasks[id].suspended   = false;
     s_tasks[id].last_run_ms = core_tick_ms();
     return AXISOS_OK;
 }
 
 axisOS_status_t tasks_unregister(task_id_t id) {
-    if (id >= s_task_count) return AXISOS_ERR_NOT_FOUND;
+    if (id >= s_task_count || !s_tasks[id].active) return AXISOS_ERR_NOT_FOUND;
     memset(&s_tasks[id], 0, sizeof(task_entry_t));
     s_tasks[id].active = false;
     return AXISOS_OK;

@@ -1,9 +1,16 @@
-/**
- * @file    axisOS_wifi.h
- * @brief   AxisOS Wi-Fi Manager API (CYW43 / lwIP)
- *
- * Copyright (c) 2026 AxisOS Project
- * SPDX-License-Identifier: MIT
+/*
+ * ============================================================================
+ * File:        firmware/include/axisOS_wifi.h
+ * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
+ * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
+ * Date:        2026-10-30
+ * Version:     v1.7.0-Silicon
+ * Description: AxisOS Wi-Fi Manager API (CYW43 / lwIP) with watchdog-safe
+ *              connection timeout bounds.
+ * Changelog:
+ *   - 2026-10-30 (MFC/AGY): Reduced WIFI_CONNECT_TIMEOUT_MS to 6000u so it
+ *     never exceeds AXISOS_WDT_TIMEOUT_MS (8000u).
+ * ============================================================================
  */
 
 #ifndef AXISOS_WIFI_H
@@ -14,11 +21,11 @@
 #include "axisOS_core.h"
 
 /* -----------------------------------------------------------------------
- *  Configuration maximums
+ *  Configuration maximums (Watchdog-safe: 6000 ms <= 8000 ms WDT)
  * --------------------------------------------------------------------- */
 #define WIFI_SSID_MAX_LEN       33u
 #define WIFI_PASS_MAX_LEN       65u
-#define WIFI_CONNECT_TIMEOUT_MS 15000u
+#define WIFI_CONNECT_TIMEOUT_MS 6000u
 #define WIFI_RETRY_COUNT        3u
 
 /* -----------------------------------------------------------------------
@@ -47,8 +54,6 @@ wifi_state_t    wifi_get_state(void);
 int8_t          wifi_get_rssi(void);
 void            wifi_poll(void);
 void            wifi_register_event_cb(wifi_event_cb_t cb, void *user_ctx);
-
-/* Returns heap-stable pointer to current IP string, NULL if not connected */
 const char     *wifi_get_ip_str(void);
 
 #endif /* AXISOS_WIFI_H */

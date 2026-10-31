@@ -1,9 +1,16 @@
-/**
- * @file    main.c
- * @brief   AxisOS — Main Entry Point for Raspberry Pi Pico 2W
- *
- * Copyright (c) 2026 AxisOS Project
- * SPDX-License-Identifier: MIT
+/*
+ * ============================================================================
+ * File:        firmware/src/main.c
+ * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
+ * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
+ * Date:        2026-10-30
+ * Version:     v1.7.0-Silicon
+ * Description: AxisOS main entry point for Raspberry Pi Pico 2 W (RP2350)
+ *              with bio-heartbeat scheduler task and watchdog protection.
+ * Changelog:
+ *   - 2026-10-30 (MFC/AGY): Standardized Crusan & Co. SOP header and verified
+ *     clean compilation against Pico SDK 2.1.0.
+ * ============================================================================
  */
 
 #include <stdio.h>
@@ -24,12 +31,12 @@
  * --------------------------------------------------------------------- */
 static void print_banner(void) {
     printf("\r\n");
-    printf("  ╔══════════════════════════════════════════╗\r\n");
-    printf("  ║          A x i s O S  v%-18s║\r\n", AXISOS_VERSION_STRING);
-    printf("  ║   Codename: %-30s║\r\n", AXISOS_VERSION_CODENAME);
-    printf("  ║   Board   : %-30s║\r\n", AXISOS_TARGET_BOARD);
-    printf("  ║   Channel : %-30s║\r\n", AXISOS_RELEASE_CHANNEL);
-    printf("  ╚══════════════════════════════════════════╝\r\n");
+    printf("  +==========================================+\r\n");
+    printf("  |   Crusan & Co. // AxisOS v%-15s|\r\n", AXISOS_VERSION_STRING);
+    printf("  |   Codename: %-29s|\r\n", AXISOS_VERSION_CODENAME);
+    printf("  |   Board   : %-29s|\r\n", AXISOS_TARGET_BOARD);
+    printf("  |   Channel : %-29s|\r\n", AXISOS_RELEASE_CHANNEL);
+    printf("  +==========================================+\r\n");
     printf("\r\n");
 }
 
@@ -63,7 +70,7 @@ int main(void) {
 
     print_banner();
 
-    printf("[BOOT] Clock speed : %lu MHz\r\n", clock_get_hz(clk_sys) / 1000000);
+    printf("[BOOT] Clock speed : %lu MHz\r\n", (unsigned long)(clock_get_hz(clk_sys) / 1000000));
     printf("[BOOT] Build stamp : %s\r\n", AXISOS_VERSION_BUILD);
 
     /* --- Hardware Abstraction Layer --- */

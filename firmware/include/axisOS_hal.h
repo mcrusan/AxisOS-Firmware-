@@ -1,9 +1,14 @@
-/**
- * @file    axisOS_hal.h
- * @brief   AxisOS Hardware Abstraction Layer — Pico 2W GPIO / ADC / I2C / SPI
- *
- * Copyright (c) 2026 AxisOS Project
- * SPDX-License-Identifier: MIT
+/*
+ * ============================================================================
+ * File:        firmware/include/axisOS_hal.h
+ * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
+ * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
+ * Date:        2026-10-30
+ * Version:     v1.7.0-Silicon
+ * Description: AxisOS Hardware Abstraction Layer API (GPIO, LED, ADC, I2C, SPI).
+ * Changelog:
+ *   - 2026-10-30 (MFC/AGY): Standardized Crusan & Co. SOP header.
+ * ============================================================================
  */
 
 #ifndef AXISOS_HAL_H
@@ -11,6 +16,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include "axisOS_core.h"
 
 /* -----------------------------------------------------------------------

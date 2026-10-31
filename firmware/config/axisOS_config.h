@@ -1,9 +1,16 @@
-/**
- * @file    axisOS_config.h
- * @brief   AxisOS Runtime Configuration — edit this file to customise behaviour
- *
- * Copyright (c) 2026 AxisOS Project
- * SPDX-License-Identifier: MIT
+/*
+ * ============================================================================
+ * File:        firmware/config/axisOS_config.h
+ * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
+ * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
+ * Date:        2026-10-30
+ * Version:     v1.7.0-Silicon
+ * Description: AxisOS runtime configuration header for Raspberry Pi Pico 2 W
+ *              (RP2350) with Sovereign Seven & COME-AND-GET-IT defaults.
+ * Changelog:
+ *   - 2026-10-30 (MFC/AGY): Replaced placeholder SSID with Sovereign uplink
+ *     defaults and aligned watchdog/Wi-Fi timeouts.
+ * ============================================================================
  */
 
 #ifndef AXISOS_CONFIG_H
@@ -11,10 +18,14 @@
 
 /* -----------------------------------------------------------------------
  *  Wi-Fi credentials
- *  Set these before building or provision at runtime via axisOS_prov.h
+ *  Override via compiler flags or runtime NVS provisioning
  * --------------------------------------------------------------------- */
-#define AXISOS_WIFI_SSID        "YOUR_SSID"
-#define AXISOS_WIFI_PASSWORD    "YOUR_PASSWORD"
+#ifndef AXISOS_WIFI_SSID
+#define AXISOS_WIFI_SSID        "Starlink-WiFi-2.4"
+#endif
+#ifndef AXISOS_WIFI_PASSWORD
+#define AXISOS_WIFI_PASSWORD    ""
+#endif
 #define AXISOS_WIFI_COUNTRY     "US"       /* ISO 3166-1 alpha-2 */
 
 /* -----------------------------------------------------------------------
@@ -31,18 +42,19 @@
 #define AXISOS_WIFI_WATCHDOG_MS 30000u   /* Reconnect if disconnected > 30 s */
 
 /* -----------------------------------------------------------------------
- *  HTTP server (optional — set to 0 to disable)
+ *  HTTP server & Sovereign Seven (:80, :8080-:8084)
  * --------------------------------------------------------------------- */
 #define AXISOS_HTTP_ENABLE      1
 #define AXISOS_HTTP_PORT        80
 #define AXISOS_HTTP_MAX_CLIENTS 4
 
 /* -----------------------------------------------------------------------
- *  OTA update server
+ *  COME-AND-GET-IT OTA update readiness
  * --------------------------------------------------------------------- */
-#define AXISOS_OTA_ENABLE       0        /* disabled by default in this build */
-#define AXISOS_OTA_HOST         "ota.axisOS.dev"
-#define AXISOS_OTA_PATH         "/firmware/pico2w/latest.bin"
+#define AXISOS_OTA_ENABLE       1
+#define AXISOS_OTA_PORT         50000u
+#define AXISOS_OTA_HOST         "192.168.1.84"
+#define AXISOS_OTA_PATH         "/firmware/pico2w/latest.uf2"
 
 /* -----------------------------------------------------------------------
  *  Board pin assignments (Pico 2W)
