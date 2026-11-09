@@ -1,15 +1,11 @@
-/*
- * ============================================================================
+/******************************************************************************
  * File:        firmware/include/axisOS_hal.h
- * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
- * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
- * Date:        2026-10-30
- * Version:     v1.7.0-Silicon
- * Description: AxisOS Hardware Abstraction Layer API (GPIO, LED, ADC, I2C, SPI).
- * Changelog:
- *   - 2026-10-30 (MFC/AGY): Standardized Crusan & Co. SOP header.
- * ============================================================================
- */
+ * Description: AxisOS Hardware Abstraction Layer API (GPIO, CYW43 LED, ADC die temp & VBAT, I2C0, SPI0).
+ * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+ * Date:        2026110901
+ * Version:     v1.8.1-Silicon
+ ******************************************************************************/
+// 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #ifndef AXISOS_HAL_H
 #define AXISOS_HAL_H

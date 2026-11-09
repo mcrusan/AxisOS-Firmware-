@@ -1,15 +1,11 @@
-/*
- * ============================================================================
+/******************************************************************************
  * File:        firmware/include/axisOS_version.h
- * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
- * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
- * Date:        2026-10-30
- * Version:     v1.7.0-Silicon
- * Description: AxisOS version stamp and target MCU identification header.
- * Changelog:
- *   - 2026-10-30 (MFC/AGY): Bumped to v1.7.0-Silicon (20261030).
- * ============================================================================
- */
+ * Description: AxisOS semantic firmware version definitions for Raspberry Pi Pico 2 W (RP2350).
+ * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+ * Date:        2026110901
+ * Version:     v1.8.1-Silicon
+ ******************************************************************************/
+// 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #ifndef AXISOS_VERSION_H
 #define AXISOS_VERSION_H

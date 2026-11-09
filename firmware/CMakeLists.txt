@@ -1,15 +1,12 @@
 # ==============================================================================
 # File:        firmware/CMakeLists.txt
-# Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
-# Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
-# Date:        2026-10-30
-# Version:     v1.7.0-Silicon
-# Description: CMake build configuration for AxisOS Raspberry Pi Pico 2 W
-#              (RP2350) firmware with include/ and config/ search paths.
-# Changelog:
-#   - 2026-10-30 (MFC/AGY): Added ${CMAKE_CURRENT_LIST_DIR}/config to
-#     target_include_directories() and bumped version to 1.7.0.
+# Description: CMake build configuration for Crusan & Co. AxisOS Raspberry Pi Pico 2 W (RP2350) firmware.
+# Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+# Date:        2026110901
+# Version:     v1.8.1-Silicon
 # ==============================================================================
+# 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
+
 cmake_minimum_required(VERSION 3.20)
 
 # Pull in Pico SDK (must be before project())

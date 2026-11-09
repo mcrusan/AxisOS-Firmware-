@@ -1,16 +1,13 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# File:        firmware/tools/build.sh
-# Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
-# Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
-# Date:        2026-10-30
-# Version:     v1.7.0-Silicon
-# Description: Clean build script for AxisOS Raspberry Pi Pico 2 W (RP2350)
-#              with automatic Sovereign toolchain & Pico SDK discovery.
-# Changelog:
-#   - 2026-10-30 (MFC/AGY): Auto-discovered PICO_SDK_PATH and ARM GCC toolchain,
-#     added Ninja/Make fallback, and replaced brittle Perl lookbehind regex.
+# Script Name: firmware/tools/build.sh
+# Description: Clean build script for Crusan & Co. AxisOS Raspberry Pi Pico 2 W (RP2350) firmware.
+# Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+# Date:        2026110901
+# Version:     v1.8.1-Silicon
 # ==============================================================================
+# 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

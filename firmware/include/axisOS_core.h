@@ -1,15 +1,11 @@
-/*
- * ============================================================================
+/******************************************************************************
  * File:        firmware/include/axisOS_core.h
- * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
- * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
- * Date:        2026-10-30
- * Version:     v1.7.0-Silicon
- * Description: AxisOS core subsystem API (status codes, watchdog, tick, log).
- * Changelog:
- *   - 2026-10-30 (MFC/AGY): Standardized Crusan & Co. SOP header.
- * ============================================================================
- */
+ * Description: AxisOS core subsystem API (status codes, hardware watchdog, millisecond tick, structured logging).
+ * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+ * Date:        2026110901
+ * Version:     v1.8.1-Silicon
+ ******************************************************************************/
+// 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #ifndef AXISOS_CORE_H
 #define AXISOS_CORE_H

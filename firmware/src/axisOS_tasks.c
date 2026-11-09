@@ -1,17 +1,11 @@
-/*
- * ============================================================================
+/******************************************************************************
  * File:        firmware/src/axisOS_tasks.c
- * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
- * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
- * Date:        2026-10-30
- * Version:     v1.7.0-Silicon
- * Description: AxisOS cooperative task scheduler with full slot reclamation on
- *              tasks_unregister().
- * Changelog:
- *   - 2026-10-30 (MFC/AGY): Fixed task slot leak in tasks_register() by
- *     reclaiming inactive (!active) slots before allocating new ones.
- * ============================================================================
- */
+ * Description: AxisOS cooperative task scheduler with full slot reclamation on tasks_unregister().
+ * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+ * Date:        2026110901
+ * Version:     v1.8.1-Silicon
+ ******************************************************************************/
+// 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #include <string.h>
 #include <stdio.h>

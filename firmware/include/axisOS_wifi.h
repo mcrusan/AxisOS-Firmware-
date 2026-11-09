@@ -1,17 +1,11 @@
-/*
- * ============================================================================
+/******************************************************************************
  * File:        firmware/include/axisOS_wifi.h
- * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
- * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
- * Date:        2026-10-30
- * Version:     v1.7.0-Silicon
- * Description: AxisOS Wi-Fi Manager API (CYW43 / lwIP) with watchdog-safe
- *              connection timeout bounds.
- * Changelog:
- *   - 2026-10-30 (MFC/AGY): Reduced WIFI_CONNECT_TIMEOUT_MS to 6000u so it
- *     never exceeds AXISOS_WDT_TIMEOUT_MS (8000u).
- * ============================================================================
- */
+ * Description: AxisOS CYW43439 Wi-Fi station manager API and connection state definitions.
+ * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+ * Date:        2026110901
+ * Version:     v1.8.1-Silicon
+ ******************************************************************************/
+// 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #ifndef AXISOS_WIFI_H
 #define AXISOS_WIFI_H

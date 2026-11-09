@@ -1,17 +1,11 @@
-/*
- * ============================================================================
+/******************************************************************************
  * File:        firmware/config/axisOS_config.h
- * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
- * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
- * Date:        2026-10-30
- * Version:     v1.7.0-Silicon
- * Description: AxisOS runtime configuration header for Raspberry Pi Pico 2 W
- *              (RP2350) with Sovereign Seven & COME-AND-GET-IT defaults.
- * Changelog:
- *   - 2026-10-30 (MFC/AGY): Replaced placeholder SSID with Sovereign uplink
- *     defaults and aligned watchdog/Wi-Fi timeouts.
- * ============================================================================
- */
+ * Description: AxisOS runtime configuration header for Raspberry Pi Pico 2 W (RP2350) with Sovereign Seven & COME-AND-GET-IT defaults.
+ * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+ * Date:        2026110901
+ * Version:     v1.8.1-Silicon
+ ******************************************************************************/
+// 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #ifndef AXISOS_CONFIG_H
 #define AXISOS_CONFIG_H
@@ -21,7 +15,7 @@
  *  Override via compiler flags or runtime NVS provisioning
  * --------------------------------------------------------------------- */
 #ifndef AXISOS_WIFI_SSID
-#define AXISOS_WIFI_SSID        "Starlink-WiFi-2.4"
+#define AXISOS_WIFI_SSID        "AxisOS-Uplink"
 #endif
 #ifndef AXISOS_WIFI_PASSWORD
 #define AXISOS_WIFI_PASSWORD    ""
@@ -53,7 +47,7 @@
  * --------------------------------------------------------------------- */
 #define AXISOS_OTA_ENABLE       1
 #define AXISOS_OTA_PORT         50000u
-#define AXISOS_OTA_HOST         "192.168.1.84"
+#define AXISOS_OTA_HOST         "10.10.0.1"
 #define AXISOS_OTA_PATH         "/firmware/pico2w/latest.uf2"
 
 /* -----------------------------------------------------------------------

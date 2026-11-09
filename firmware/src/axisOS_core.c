@@ -1,17 +1,11 @@
-/*
- * ============================================================================
+/******************************************************************************
  * File:        firmware/src/axisOS_core.c
- * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
- * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
- * Date:        2026-10-30
- * Version:     v1.7.0-Silicon
- * Description: AxisOS core subsystem implementation (monotonic tick & bounded
- *              structured logging).
- * Changelog:
- *   - 2026-10-30 (MFC/AGY): Added upper-bound check (level > LOG_LEVEL_ERROR)
- *     in core_log() before indexing s_level_str[].
- * ============================================================================
- */
+ * Description: AxisOS core subsystem implementation (hardware watchdog supervision, tick counter, formatted logging).
+ * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+ * Date:        2026110901
+ * Version:     v1.8.1-Silicon
+ ******************************************************************************/
+// 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #include <stdio.h>
 #include <stdarg.h>

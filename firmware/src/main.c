@@ -1,17 +1,11 @@
-/*
- * ============================================================================
+/******************************************************************************
  * File:        firmware/src/main.c
- * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
- * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
- * Date:        2026-10-30
- * Version:     v1.7.0-Silicon
- * Description: AxisOS main entry point for Raspberry Pi Pico 2 W (RP2350)
- *              with bio-heartbeat scheduler task and watchdog protection.
- * Changelog:
- *   - 2026-10-30 (MFC/AGY): Standardized Crusan & Co. SOP header and verified
- *     clean compilation against Pico SDK 2.1.0.
- * ============================================================================
- */
+ * Description: AxisOS main entry point for Raspberry Pi Pico 2 W (RP2350) with bio-heartbeat scheduler task and watchdog protection.
+ * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+ * Date:        2026110901
+ * Version:     v1.8.1-Silicon
+ ******************************************************************************/
+// 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #include <stdio.h>
 #include "pico/stdlib.h"

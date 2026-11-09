@@ -1,17 +1,11 @@
-/*
- * ============================================================================
+/******************************************************************************
  * File:        firmware/config/lwipopts.h
- * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
- * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
- * Date:        2026-10-30
- * Version:     v1.7.0-Silicon
- * Description: Sovereign NO_SYS=1 bare-metal lwIP configuration header for
- *              Raspberry Pi Pico W / Pico 2 W (pico_cyw43_arch_lwip_poll).
- * Changelog:
- *   - 2026-10-30 (MFC/AGY): Created missing lwipopts.h required by
- *     pico_cyw43_arch_lwip_poll in CMakeLists.txt.
- * ============================================================================
- */
+ * Description: Sovereign NO_SYS=1 bare-metal lwIP configuration header for Raspberry Pi Pico W / Pico 2 W (pico_cyw43_arch_lwip_poll).
+ * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+ * Date:        2026110901
+ * Version:     v1.8.1-Silicon
+ ******************************************************************************/
+// 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #ifndef _LWIPOPTS_H
 #define _LWIPOPTS_H
