@@ -1,17 +1,14 @@
 /*
  * ============================================================================
  * File:        firmware/include/axisOS_wifi.h
- * Project:     Crusan & Co. // AxisOS — Sovereign Pico 2 W Firmware
- * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
- * Date:        2026-10-30
- * Version:     v1.7.0-Silicon
  * Description: AxisOS Wi-Fi Manager API (CYW43 / lwIP) with watchdog-safe
  *              connection timeout bounds.
- * Changelog:
- *   - 2026-10-30 (MFC/AGY): Reduced WIFI_CONNECT_TIMEOUT_MS to 6000u so it
- *     never exceeds AXISOS_WDT_TIMEOUT_MS (8000u).
+ * Author:      Marc F. Crusan / Crusan & Co. w/ AGY (AXEL)
+ * Date:        2026111001
+ * Version:     v1.7.0-Silicon
  * ============================================================================
  */
+// 2026111001: Removed unused macros WIFI_SSID_MAX_LEN, WIFI_PASS_MAX_LEN, and WIFI_RETRY_COUNT.
 
 #ifndef AXISOS_WIFI_H
 #define AXISOS_WIFI_H
@@ -23,10 +20,7 @@
 /* -----------------------------------------------------------------------
  *  Configuration maximums (Watchdog-safe: 6000 ms <= 8000 ms WDT)
  * --------------------------------------------------------------------- */
-#define WIFI_SSID_MAX_LEN       33u
-#define WIFI_PASS_MAX_LEN       65u
 #define WIFI_CONNECT_TIMEOUT_MS 6000u
-#define WIFI_RETRY_COUNT        3u
 
 /* -----------------------------------------------------------------------
  *  State machine

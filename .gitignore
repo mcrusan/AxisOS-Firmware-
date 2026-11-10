@@ -1,0 +1,9 @@
+build/
+firmware/build/
+CMakeFiles/
+CMakeCache.txt
+*.o
+*.elf
+*.map
+*.dis
+*.hex
