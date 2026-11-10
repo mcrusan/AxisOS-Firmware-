@@ -2,9 +2,10 @@
  * File:        firmware/include/axisOS_wifi.h
  * Description: AxisOS CYW43439 Wi-Fi station manager API and connection state definitions.
  * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
- * Date:        2026110901
+ * Date:        2026111001
  * Version:     v1.8.1-Silicon
  ******************************************************************************/
+// 2026111001 (MFC/AGY) Removed unused macros WIFI_SSID_MAX_LEN, WIFI_PASS_MAX_LEN, and WIFI_RETRY_COUNT.
 // 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #ifndef AXISOS_WIFI_H
@@ -17,10 +18,7 @@
 /* -----------------------------------------------------------------------
  *  Configuration maximums (Watchdog-safe: 6000 ms <= 8000 ms WDT)
  * --------------------------------------------------------------------- */
-#define WIFI_SSID_MAX_LEN       33u
-#define WIFI_PASS_MAX_LEN       65u
 #define WIFI_CONNECT_TIMEOUT_MS 6000u
-#define WIFI_RETRY_COUNT        3u
 
 /* -----------------------------------------------------------------------
  *  State machine
