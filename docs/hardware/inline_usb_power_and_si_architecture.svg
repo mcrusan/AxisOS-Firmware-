@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 620" width="1120" height="620" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#080d17"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#152036"/>
+      <stop offset="100%" stop-color="#0d1526"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1120" height="620" fill="url(#bgGrad)" rx="14"/>
+  <rect x="12" y="12" width="1096" height="596" fill="none" stroke="#2a3958" stroke-width="2" rx="10"/>
+
+  <!-- Header -->
+  <text x="36" y="46" fill="#fbbf24" font-size="20" font-weight="800">CRUSAN &amp; CO. — AXISOS™ INLINE USB PASS-THROUGH SI OUTPOST &amp; MICRO-SQUADRON ARCHITECTURE</text>
+  <text x="36" y="68" fill="#94a3b8" font-size="13">Hardware Power Path (NM-USB-Chain-V1.0 ESP32-S3) · PHY Data Handoff · UDP :50000 Mesh · Air-Gapped Local SI Loop</text>
+  <line x1="36" y1="82" x2="1084" y2="82" stroke="#2a3958" stroke-width="1.5"/>
+
+  <!-- Upstream Host Box -->
+  <rect x="36" y="120" width="210" height="190" fill="url(#cardGrad)" stroke="#38bdf8" stroke-width="2" rx="10"/>
+  <text x="52" y="148" fill="#38bdf8" font-size="14" font-weight="800">1. UPSTREAM USB-A HOST</text>
+  <text x="52" y="172" fill="#e2e8f0" font-size="12">• Smart TV / Monitor USB</text>
+  <text x="52" y="192" fill="#e2e8f0" font-size="12">• Raspberry Pi 4 / Pi 5</text>
+  <text x="52" y="212" fill="#e2e8f0" font-size="12">• Bench PSU / Laptop</text>
+  <rect x="52" y="232" width="178" height="60" fill="#09101d" stroke="#1e293b" rx="6"/>
+  <text x="62" y="254" fill="#fbbf24" font-size="11" font-weight="700">USB 2.0 Male Plug:</text>
+  <text x="62" y="272" fill="#4ade80" font-size="11">VBUS (+5V) + GND</text>
+  <text x="62" y="287" fill="#a78bfa" font-size="11">D- (GPIO19) / D+ (GPIO20)</text>
+
+  <!-- Inline ESP32-S3 Outpost Box -->
+  <rect x="300" y="102" width="470" height="270" fill="url(#cardGrad)" stroke="#fbbf24" stroke-width="2.5" rx="12"/>
+  <text x="320" y="130" fill="#fbbf24" font-size="15" font-weight="800">2. AXISOS™ INLINE USB OUTPOST (ESP32-S3-NM-USB-CHAIN-V1)</text>
+
+  <!-- VBUS Shunt Subbox -->
+  <rect x="320" y="146" width="210" height="96" fill="#09101d" stroke="#4ade80" stroke-width="1.5" rx="8"/>
+  <text x="332" y="166" fill="#4ade80" font-size="12" font-weight="700">Inline VBUS Power Sense</text>
+  <text x="332" y="185" fill="#cbd5e1" font-size="11">• GPIO13: 8.5:1 VBUS Divider</text>
+  <text x="332" y="202" fill="#cbd5e1" font-size="11">• GPIO12: High-Side Shunt Amp</text>
+  <text x="332" y="219" fill="#cbd5e1" font-size="11">• 16× Oversampled 12-bit ADC</text>
+  <text x="332" y="235" fill="#fbbf24" font-size="11">• &gt;1.15A SBC Rail Sag Alert</text>
+
+  <!-- ST7735S HUD Subbox -->
+  <rect x="544" y="146" width="208" height="96" fill="#09101d" stroke="#38bdf8" stroke-width="1.5" rx="8"/>
+  <text x="556" y="166" fill="#38bdf8" font-size="12" font-weight="700">160×80 ST7735S IPS HUD</text>
+  <text x="556" y="185" fill="#cbd5e1" font-size="11">• SCLK: GPIO38 · MOSI: GPIO48</text>
+  <text x="556" y="202" fill="#cbd5e1" font-size="11">• CS: GPIO39 · DC: GPIO47</text>
+  <text x="556" y="219" fill="#cbd5e1" font-size="11">• RST: GPIO40 · BTN: GPIO0</text>
+  <text x="556" y="235" fill="#4ade80" font-size="11">• 25 KB SRAM Double-Buffer</text>
+
+  <!-- USB PHY Handoff Subbox -->
+  <rect x="320" y="254" width="432" height="102" fill="#09101d" stroke="#a78bfa" stroke-width="1.5" rx="8"/>
+  <text x="332" y="274" fill="#a78bfa" font-size="12" font-weight="700">Transparent D+/D- Pass-Through &amp; Embedded C99 Stack</text>
+  <text x="332" y="293" fill="#e2e8f0" font-size="11">• releaseUsbPassthrough(): Clears USB_SERIAL_JTAG_CONF0_REG &amp; RTC_CNTL_USB_CONF_REG</text>
+  <text x="332" y="310" fill="#e2e8f0" font-size="11">  1.5 kΩ pull-ups, pulses 200 ms SE0 bus reset, and tri-states GPIO19/GPIO20.</text>
+  <text x="332" y="328" fill="#fbbf24" font-size="11">• Dual Wi-Fi STA + NAPT SoftAP (192.168.11.1/24) · Pure C BSD Sockets (:80, :8080)</text>
+  <text x="332" y="345" fill="#4ade80" font-size="11">• Atomic HTTP/1.0 esp_ota Partition Updater ("COME-AND-GET-IT")</text>
+
+  <!-- Downstream USB Device Box -->
+  <rect x="824" y="120" width="260" height="190" fill="url(#cardGrad)" stroke="#4ade80" stroke-width="2" rx="10"/>
+  <text x="840" y="148" fill="#4ade80" font-size="14" font-weight="800">3. DOWNSTREAM PASS-THROUGH</text>
+  <text x="840" y="172" fill="#e2e8f0" font-size="12">• RP2350 Pico 2 W ("Cub")</text>
+  <text x="840" y="192" fill="#e2e8f0" font-size="12">• Raspberry Pi Zero 2 W Node</text>
+  <text x="840" y="212" fill="#e2e8f0" font-size="12">• USB SSD / Keyboard / KVM</text>
+  <rect x="840" y="232" width="228" height="60" fill="#09101d" stroke="#1e293b" rx="6"/>
+  <text x="850" y="254" fill="#fbbf24" font-size="11" font-weight="700">USB 2.0 Female Receptacle:</text>
+  <text x="850" y="272" fill="#4ade80" font-size="11">Metered VBUS +5V Pass-Through</text>
+  <text x="850" y="287" fill="#a78bfa" font-size="11">Unimpeded 480/12 Mbps Data</text>
+
+  <!-- Arrows Top Row -->
+  <line x1="246" y1="215" x2="298" y2="215" stroke="#4ade80" stroke-width="3"/>
+  <polygon points="298,215 288,209 288,221" fill="#4ade80"/>
+  <line x1="770" y1="215" x2="822" y2="215" stroke="#4ade80" stroke-width="3"/>
+  <polygon points="822,215 812,209 812,221" fill="#4ade80"/>
+
+  <!-- Bottom Row: RP2350 Mesh + Air-Gapped Local SI Brain -->
+  <rect x="36" y="420" width="480" height="164" fill="url(#cardGrad)" stroke="#38bdf8" stroke-width="2" rx="10"/>
+  <text x="54" y="448" fill="#38bdf8" font-size="14" font-weight="800">4. PICO 2 W (RP2350) BARE-METAL MESH NODE (firmware/)</text>
+  <text x="54" y="472" fill="#e2e8f0" font-size="12">• Dual Cortex-M33 @ 150 MHz · Pure C11 + NO_SYS=1 lwIP Poll Stack</text>
+  <text x="54" y="492" fill="#e2e8f0" font-size="12">• Die Temp ADC (Ch 4) + VBAT/VSYS Divider + Hardware Watchdog</text>
+  <text x="54" y="512" fill="#e2e8f0" font-size="12">• Joins Outpost SoftAP (192.168.11.x) or Shop LAN Automatically</text>
+  <text x="54" y="534" fill="#fbbf24" font-size="12" font-weight="700">• Exchanges UDP :50000 AXISDISC Telemetry Heartbeats Every 3 s</text>
+  <text x="54" y="556" fill="#94a3b8" font-size="11">Artifact: firmware/release/axisOS-v1.7.0-Silicon.uf2 (SHA-256 Verified)</text>
+
+  <rect x="556" y="420" width="528" height="164" fill="url(#cardGrad)" stroke="#a855f7" stroke-width="2" rx="10"/>
+  <text x="574" y="448" fill="#d8b4fe" font-size="14" font-weight="800">5. 100% OFFLINE 2-TIER LOCAL SUPER INTELLIGENCE (SI) LOOP</text>
+  <text x="574" y="472" fill="#e2e8f0" font-size="12">• Tier 1 (Sub-ms C99 Reflexes): On-chip /status &amp; /api/chat responder</text>
+  <text x="574" y="492" fill="#e2e8f0" font-size="12">  interprets VBUS voltage sag, current draw, RSSI &amp; node health locally.</text>
+  <text x="574" y="512" fill="#e2e8f0" font-size="12">• Tier 2 (Air-Gapped Neural Inference): Optional LAN bridge to local</text>
+  <text x="574" y="532" fill="#e2e8f0" font-size="12">  Qwen2.5 GGUF weights (:8088) inside 360° Omnidirectional Zones.</text>
+  <text x="574" y="556" fill="#4ade80" font-size="12" font-weight="700">• Zero Cloud APIs · Zero Subscriptions · Works w/ WAN Unplugged</text>
+
+  <!-- Vertical Mesh Connectors -->
+  <line x1="430" y1="372" x2="430" y2="418" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="6,4"/>
+  <text x="305" y="402" fill="#fbbf24" font-size="11" font-weight="700">UDP :50000 + NAPT</text>
+  <line x1="660" y1="372" x2="660" y2="418" stroke="#a855f7" stroke-width="2.5" stroke-dasharray="6,4"/>
+  <text x="672" y="402" fill="#d8b4fe" font-size="11" font-weight="700">JSON Telemetry + Local SI Chat</text>
+</svg>
