@@ -58,7 +58,7 @@
 #define AXISOS_SOFTAP_PASS      "AxisOS-Setup-2026"
 #endif
 #ifndef AXISOS_LOCAL_SI_HUB_IP
-#define AXISOS_LOCAL_SI_HUB_IP  "192.168.1.100"
+#define AXISOS_LOCAL_SI_HUB_IP  "10.10.0.1"
 #endif
 #ifndef AXISOS_LOCAL_SI_PORT
 #define AXISOS_LOCAL_SI_PORT    8088

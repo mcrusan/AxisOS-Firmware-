@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
-# ==============================================================================
-# Script Name: firmware/tools/build.sh
+# -----------------------------------------------------------------------------
+# File:        firmware/tools/build.sh
 # Description: Clean build script for Crusan & Co. AxisOS Raspberry Pi Pico 2 W (RP2350) firmware.
 # Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-# Date:        2026110901
-# Version:     v1.8.1-Silicon
-# ==============================================================================
-# 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
+# Date:        2026111816
+# Version:     v1.8.2-Silicon
+# -----------------------------------------------------------------------------
+# 2026111816 (MFC/AGY) Replaced local home path with portable $HOME discovery and enforced canonical 5-Field SOP Header.
+# 2026110901 (MFC/PP/AGY) Upgraded to Crusan & Co. 5-Field SOP Header standard.
 
 set -euo pipefail
 
@@ -17,12 +18,12 @@ BUILD_DIR="${ROOT_DIR}/build"
 RELEASE_DIR="${ROOT_DIR}/release"
 
 # Auto-discover Sovereign ARM toolchain & Pico SDK if not already in environment
-if [[ -d "/home/mcrusan/toolchains/axisos-arm-10.3/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi/bin" ]]; then
-    export PICO_TOOLCHAIN_PATH="/home/mcrusan/toolchains/axisos-arm-10.3/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi"
+if [[ -d "${HOME}/toolchains/axisos-arm-10.3/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi/bin" ]]; then
+    export PICO_TOOLCHAIN_PATH="${HOME}/toolchains/axisos-arm-10.3/gcc-arm-10.3-2021.07-x86_64-arm-none-eabi"
     export PATH="${PICO_TOOLCHAIN_PATH}/bin:${PATH}"
 fi
-if [[ -z "${PICO_SDK_PATH:-}" ]] && [[ -d "/home/mcrusan/pico-sdk" ]]; then
-    export PICO_SDK_PATH="/home/mcrusan/pico-sdk"
+if [[ -z "${PICO_SDK_PATH:-}" ]] && [[ -d "${HOME}/pico-sdk" ]]; then
+    export PICO_SDK_PATH="${HOME}/pico-sdk"
 fi
 
 # Capitalise for CMake
