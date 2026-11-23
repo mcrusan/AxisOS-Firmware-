@@ -2,7 +2,7 @@
  * File:        firmware/config/lwipopts.h
  * Description: Sovereign NO_SYS=1 bare-metal lwIP configuration header for Raspberry Pi Pico W / Pico 2 W (pico_cyw43_arch_lwip_poll).
  * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
- * Date:        2026110901
+ * Date:        20261030
  * Version:     v1.8.1-Silicon
  ******************************************************************************/
 // 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.

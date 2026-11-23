@@ -2,7 +2,7 @@
  * File:        firmware/config/axisOS_config.h
  * Description: AxisOS runtime configuration header for Raspberry Pi Pico 2 W (RP2350) with Sovereign Seven & COME-AND-GET-IT defaults.
  * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
- * Date:        2026110901
+ * Date:        20260928
  * Version:     v1.8.1-Silicon
  ******************************************************************************/
 // 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.

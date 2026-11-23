@@ -2,7 +2,7 @@
  * File:        firmware/include/axisOS_version.h
  * Description: AxisOS semantic firmware version definitions for Raspberry Pi Pico 2 W (RP2350).
  * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
- * Date:        2026110901
+ * Date:        20260928
  * Version:     v1.8.1-Silicon
  ******************************************************************************/
 // 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
