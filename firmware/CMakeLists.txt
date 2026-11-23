@@ -2,7 +2,7 @@
 # File:        firmware/CMakeLists.txt
 # Description: CMake build configuration for Crusan & Co. AxisOS Raspberry Pi Pico 2 W (RP2350) firmware.
 # Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-# Date:        2026112301
+# Date:        20260928
 # Version:     v1.8.2-Silicon
 # -----------------------------------------------------------------------------
 # 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.

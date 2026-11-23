@@ -2,7 +2,7 @@
 // File:        firmware/include/axisOS_tasks.h
 // Description: AxisOS cooperative fixed-slot task scheduler API.
 // Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-// Date:        2026112302
+// Date:        20260928
 // Version:     v1.8.3-Silicon
 // -----------------------------------------------------------------------------
 // 2026112302 (MFC/AGY) Replaced <stdint.h>/<stdbool.h> with freestanding axis-types.h.

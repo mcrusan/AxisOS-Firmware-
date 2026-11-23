@@ -2,7 +2,7 @@
 // File:        firmware/src/axis-string.c
 // Description: Freestanding zero-libc AxisOS string & memory routines for Firmware
 // Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-// Date:        2026112301
+// Date:        20260924
 // Version:     v0.4-Silicon
 // -----------------------------------------------------------------------------
 // 2026092400 (MFC) Original AxisOS freestanding axis-string.c (v0.3).

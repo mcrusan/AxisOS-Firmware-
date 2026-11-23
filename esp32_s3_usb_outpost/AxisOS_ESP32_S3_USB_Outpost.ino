@@ -6,7 +6,7 @@
 //              D+/D- USB PHY Tri-State Release, NAPT SoftAP Extender, Embedded
 //              Local SI Web Console (:80/:8080), UDP :50000 Mesh & C99 LAN OTA.
 // Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-// Date:        2026112302
+// Date:        20261027
 // Version:     v1.8.3-Silicon
 // -----------------------------------------------------------------------------
 // 2026112302 (MFC/AGY) Eliminated <stdio.h>; added pure freestanding axis_snprintf() using compiler __builtin_va_*.

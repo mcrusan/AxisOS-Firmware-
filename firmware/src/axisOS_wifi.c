@@ -2,7 +2,7 @@
 // File:        firmware/src/axisOS_wifi.c
 // Description: AxisOS Wi-Fi Manager implementation (CYW43 / lwIP) with watchdog-safe connection handling.
 // Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-// Date:        2026112302
+// Date:        20260928
 // Version:     v1.8.3-Silicon
 // -----------------------------------------------------------------------------
 // 2026112302 (MFC/AGY) Eliminated <stdio.h>; replaced IPv4 snprintf with pure freestanding axis_fmt_ipv4().

@@ -2,7 +2,7 @@
 // File:        firmware/src/axisOS_hal.c
 // Description: AxisOS Hardware Abstraction Layer implementation (GPIO, CYW43 LED, ADC die temp, I2C0, NULL-safe SPI0).
 // Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-// Date:        2026112301
+// Date:        20260928
 // Version:     v1.8.2-Silicon
 // -----------------------------------------------------------------------------
 // 2026112301 (MFC/AGY) Snipped unused <stdio.h> include and normalized SOP header borders.

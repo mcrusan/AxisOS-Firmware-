@@ -2,7 +2,7 @@
 // File:        firmware/include/axis-string.h
 // Description: Minimal zero-libc string & memory prototypes for AxisOS Firmware
 // Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-// Date:        2026112301
+// Date:        20260924
 // Version:     v0.3-Silicon
 // -----------------------------------------------------------------------------
 // 2026092400 (MFC) Original AxisOS Tiny freestanding axis-string.h (v0.2).

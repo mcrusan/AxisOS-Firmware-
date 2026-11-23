@@ -4,9 +4,10 @@
 #              — Inline USB Pass-Through ESP32-S3 SI Outpost & Bare-Metal RP2350
 #              (Pico 2 W) Micro-Squadron (Tindie x PCBWay 2026 Challenge Entry).
 # Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-# Date:        2026111306
-# Version:     v1.8.1-Silicon
+# Date:        20260618
+# Version:     v1.8.3-Silicon
 # -----------------------------------------------------------------------------
+# 2026112301 (MFC/AGY) Documented b1832da Vanilla Header Purge (0 C stdlib headers in Pico 2 W & ESP32-S3 application sources via axis-types.h, axis-string.h, core_printf, and axis_snprintf) with honest vendor SDK link-layer note.
 # 2026111306 (MFC/AGY) Upgraded root landing page for Tindie x PCBWay 2026 AI Hardware Creative Challenge evaluation with ESP32-S3 Outpost SDK, physical prototype photo, SVG power/SI schematic, and full project report links.
 # 2026110901 (MFC/PP/AGY) Upgraded from 2-line stub to full 5-Field SOP README with Crusan & Co. IP & Trademark notice.
 
@@ -34,8 +35,8 @@ Welcome evaluators! Everything required to review, verify, and reproduce my entr
 | **1. Full Engineering Project Report** | [**`docs/TINDIE_PCBWAY_PROJECT_REPORT.md`**](docs/TINDIE_PCBWAY_PROJECT_REPORT.md) | Complete first-person engineering report covering real-world USB brownout & dead-zone problems, BOM, 2-Tier Offline SI integration, debugging case studies, and measured bench metrics |
 | **2. Physical Prototype Hardware** | [**`docs/photos/nm_usb_chain_v1_inline_outpost.jpg`**](docs/photos/nm_usb_chain_v1_inline_outpost.jpg) | Real cased `ESP32-S3-NM-USB-CHAIN-V1` inline USB outpost measuring live `4.97 V / 0.00 A / 0.00 W` on its `160×80` `ST7735S` IPS color HUD |
 | **3. Power, Pinout & Local SI Schematic** | [**`docs/hardware/inline_usb_power_and_si_architecture.svg`**](docs/hardware/inline_usb_power_and_si_architecture.svg) | Full vector schematic showing `GPIO13/12` `16×` VBUS sensing, `GPIO19/20` USB 2.0 PHY tri-state pass-through handoff, NAPT SoftAP repeater, `UDP :50000` mesh, and 2-Tier Local SI loop |
-| **4. `ESP32-S3` Inline Outpost Firmware** | [**`esp32_s3_usb_outpost/AxisOS_ESP32_S3_USB_Outpost.ino`**](esp32_s3_usb_outpost/AxisOS_ESP32_S3_USB_Outpost.ino) | Self-contained C/C99 firmware: direct-register `ST7735S` `25.6 KB` SRAM HUD, `releaseUsbPassthrough()`, `1.15 A` SBC brownout sentry, onboard `/api/chat` SI console, and BSD-socket LAN OTA |
-| **5. `RP2350` (`Pico 2 W`) Squadron SDK** | [**`firmware/`**](firmware/) | Pure C11 bare-metal `NO_SYS=1` `pico_cyw43_arch_lwip_poll` companion firmware (`CMakeLists.txt`, cooperative scheduler, die-temp/`VBAT` ADC HAL, watchdog, and `.uf2` builder) |
+| **4. `ESP32-S3` Inline Outpost Firmware** | [**`esp32_s3_usb_outpost/AxisOS_ESP32_S3_USB_Outpost.ino`**](esp32_s3_usb_outpost/AxisOS_ESP32_S3_USB_Outpost.ino) | Self-contained C/C99 firmware (`v1.8.3-Silicon`): direct-register `ST7735S` `25.6 KB` SRAM HUD, `releaseUsbPassthrough()`, `1.15 A` SBC brownout sentry, onboard `/api/chat` SI console, BSD-socket LAN OTA, and **`0` C stdlib headers** (`axis_*` string/mem/hex & `axis_snprintf`) |
+| **5. `RP2350` (`Pico 2 W`) Squadron SDK** | [**`firmware/`**](firmware/) | Pure C11 bare-metal `NO_SYS=1` `pico_cyw43_arch_lwip_poll` companion firmware (`v1.8.3-Silicon`): **`0` `<...>` system headers** across all 15 source/header files (`axis-types.h`, `axis-string.h`, freestanding `core_printf`, cooperative scheduler, die-temp/`VBAT` ADC HAL, watchdog, and `.uf2` builder) |
 
 ![Physical Prototype — AxisOS Inline USB Pass-Through ESP32-S3 Outpost](docs/photos/nm_usb_chain_v1_inline_outpost.jpg)
 
@@ -66,8 +67,8 @@ On my workbench at **Crusan & Co.**, single-board computers routinely hit silent
 | [`firmware/CMakeLists.txt`](firmware/CMakeLists.txt) | CMake build specification targeting `pico2_w` (`RP2350`) with `pico_cyw43_arch_lwip_poll` |
 | [`firmware/config/axisOS_config.h`](firmware/config/axisOS_config.h) | Compile-time configuration defaults (Wi-Fi uplink, hardware watchdog intervals, GPIO pinout, OTA endpoint) |
 | [`firmware/config/lwipopts.h`](firmware/config/lwipopts.h) | Bare-metal `NO_SYS=1` lwIP memory and TCP/UDP stack tuning |
-| [`firmware/include/*.h`](firmware/include/) | Core status codes, HAL (`GPIO`, `ADC` die temp & `VBAT`, `I2C0`, `SPI0`), cooperative scheduler, and CYW43439 Wi-Fi headers (`v1.8.1-Silicon`) |
-| [`firmware/src/*.c`](firmware/src/) | Pure C11 implementation modules (`main.c`, `axisOS_core.c`, `axisOS_hal.c`, `axisOS_tasks.c`, `axisOS_wifi.c`) |
+| [`firmware/include/*.h`](firmware/include/) | Freestanding types (`axis-types.h`), string library (`axis-string.h`), core status codes & console formatter, HAL (`GPIO`, `ADC` die temp & `VBAT`, `I2C0`, `SPI0`), cooperative scheduler, and CYW43439 Wi-Fi headers (`v1.8.3-Silicon`, **`0` `<...>` includes**) |
+| [`firmware/src/*.c`](firmware/src/) | Pure C11 implementation modules (`main.c`, `axis-string.c`, `axisOS_core.c`, `axisOS_hal.c`, `axisOS_tasks.c`, `axisOS_wifi.c`) — **`0` `<...>` includes** in application source *(note: Raspberry Pi's `pico_stdlib`/`cyw43` and Espressif's Arduino/ESP-IDF still link vendor silicon SDK runtimes internally at final `.uf2`/`.bin` link time)* |
 | [`firmware/tools/build.sh`](firmware/tools/build.sh) | Automated toolchain & Pico SDK discovery build script generating `.uf2` images and `.sha256` digests |
 | [`firmware/release/`](firmware/release/) | Pre-built `.uf2` reference images and `.sha256` verification digests |
 

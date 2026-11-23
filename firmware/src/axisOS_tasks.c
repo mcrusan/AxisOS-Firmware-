@@ -2,7 +2,7 @@
 // File:        firmware/src/axisOS_tasks.c
 // Description: AxisOS cooperative task scheduler with full slot reclamation on tasks_unregister().
 // Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-// Date:        2026112302
+// Date:        20260928
 // Version:     v1.8.3-Silicon
 // -----------------------------------------------------------------------------
 // 2026112302 (MFC/AGY) Eliminated <stdio.h>; routed tasks_dump() through freestanding core_puts/core_printf.

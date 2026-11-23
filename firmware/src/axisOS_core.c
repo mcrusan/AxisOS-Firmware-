@@ -2,7 +2,7 @@
 // File:        firmware/src/axisOS_core.c
 // Description: AxisOS core subsystem implementation (hardware watchdog supervision, tick counter, freestanding formatted logging — zero <stdio.h>/<stdarg.h>).
 // Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-// Date:        2026112302
+// Date:        20260928
 // Version:     v1.8.3-Silicon
 // -----------------------------------------------------------------------------
 // 2026112302 (MFC/AGY) Eliminated <stdio.h> and <stdarg.h>; implemented freestanding core_puts/core_printf/core_log over putchar_raw() + compiler __builtin_va_*.

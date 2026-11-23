@@ -2,7 +2,7 @@
 // File:        firmware/src/main.c
 // Description: AxisOS main entry point for Raspberry Pi Pico 2 W (RP2350) with bio-heartbeat scheduler task and watchdog protection.
 // Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-// Date:        2026112302
+// Date:        20260928
 // Version:     v1.8.3-Silicon
 // -----------------------------------------------------------------------------
 // 2026112302 (MFC/AGY) Eliminated <stdio.h>; routed boot banner and diagnostics through freestanding core_puts/core_printf and normalized SOP header.
