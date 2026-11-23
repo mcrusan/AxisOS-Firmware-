@@ -6,9 +6,11 @@
 //              D+/D- USB PHY Tri-State Release, NAPT SoftAP Extender, Embedded
 //              Local SI Web Console (:80/:8080), UDP :50000 Mesh & C99 LAN OTA.
 // Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
-// Date:        2026111306
-// Version:     v1.8.1-Silicon
+// Date:        2026112302
+// Version:     v1.8.3-Silicon
 // -----------------------------------------------------------------------------
+// 2026112302 (MFC/AGY) Eliminated <stdio.h>; added pure freestanding axis_snprintf() using compiler __builtin_va_*.
+// 2026112301 (MFC/AGY) Snipped <string.h>, <stdlib.h>, <ctype.h>, and unused <errno.h>; replaced with pure Crusan & Co. inline axis_* string/mem/hex helpers.
 // 2026111306 (MFC/AGY) Sanitized public SDK release for Tindie x PCBWay 2026 AI Hardware Creative Challenge (zero hardcoded credentials, SBC 1.15A brownout alert, optional local Qwen2.5 :8088 SI bridge).
 // 2026110601 (MFC/AGY) Added embedded dark-mode Outpost SI Chat Console (/ and /chat), /api/chat silicon responder, and NVS /wifi provisioning.
 // 2026102901 (MFC/AGY) Added pure C99 BSD sockets (:80, :8080) + atomic esp_ota COME-AND-GET-IT wireless updater.
@@ -17,16 +19,11 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <Preferences.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
 #include "driver/gpio.h"
 #include "soc/gpio_struct.h"
 #include "soc/soc.h"
@@ -35,6 +32,164 @@
 #include "esp_ota_ops.h"
 #include "esp_partition.h"
 #include "esp_system.h"
+
+// -----------------------------------------------------------------------------
+// 0. Pure Crusan & Co. Freestanding String / Memory / ASCII Helpers (Zero <string.h>/<ctype.h>/<stdlib.h>)
+// -----------------------------------------------------------------------------
+static size_t axis_strlen(const char* s) {
+    size_t n = 0;
+    while (s && s[n]) n++;
+    return n;
+}
+
+static char* axis_strcpy(char* dst, const char* src) {
+    char* p = dst;
+    while ((*p++ = *src++) != '\0') {}
+    return dst;
+}
+
+static char* axis_strncpy(char* dst, const char* src, size_t n) {
+    size_t i = 0;
+    for (; i < n && src[i]; i++) dst[i] = src[i];
+    for (; i < n; i++) dst[i] = '\0';
+    return dst;
+}
+
+static int axis_strcmp(const char* a, const char* b) {
+    while (*a && (*a == *b)) { a++; b++; }
+    return (unsigned char)*a - (unsigned char)*b;
+}
+
+static int axis_strncmp(const char* a, const char* b, size_t n) {
+    for (size_t i = 0; i < n; i++) {
+        if (a[i] != b[i] || a[i] == '\0') {
+            return (unsigned char)a[i] - (unsigned char)b[i];
+        }
+    }
+    return 0;
+}
+
+static const char* axis_strstr(const char* hay, const char* needle) {
+    if (!*needle) return hay;
+    for (const char* h = hay; *h; h++) {
+        const char* p = h;
+        const char* q = needle;
+        while (*p && *q && *p == *q) { p++; q++; }
+        if (!*q) return h;
+    }
+    return NULL;
+}
+
+static void* axis_memset(void* dst, int v, size_t n) {
+    unsigned char* p = (unsigned char*)dst;
+    for (size_t i = 0; i < n; i++) p[i] = (unsigned char)v;
+    return dst;
+}
+
+static int axis_memcmp(const void* a, const void* b, size_t n) {
+    const unsigned char* pa = (const unsigned char*)a;
+    const unsigned char* pb = (const unsigned char*)b;
+    for (size_t i = 0; i < n; i++) {
+        if (pa[i] != pb[i]) return (int)pa[i] - (int)pb[i];
+    }
+    return 0;
+}
+
+static char axis_tolower(char c) {
+    return (c >= 'A' && c <= 'Z') ? (char)(c + 32) : c;
+}
+
+static int axis_hexval(char c) {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
+
+static void axis_buf_putc(char* out, size_t cap, size_t* pos, char c) {
+    if (*pos + 1 < cap) out[*pos] = c;
+    (*pos)++;
+}
+
+static void axis_buf_uint(char* out, size_t cap, size_t* pos,
+                          unsigned long v, int base, int upper, int width, int zero_pad) {
+    const char* digits = upper ? "0123456789ABCDEF" : "0123456789abcdef";
+    char tmp[32];
+    int n = 0;
+    if (v == 0) tmp[n++] = '0';
+    else while (v > 0 && n < 31) { tmp[n++] = digits[v % (unsigned long)base]; v /= (unsigned long)base; }
+    while (n < width) { axis_buf_putc(out, cap, pos, zero_pad ? '0' : ' '); width--; }
+    while (n > 0) axis_buf_putc(out, cap, pos, tmp[--n]);
+}
+
+static int axis_snprintf(char* out, size_t cap, const char* fmt, ...) {
+    size_t pos = 0;
+    __builtin_va_list ap;
+    __builtin_va_start(ap, fmt);
+    while (*fmt) {
+        if (*fmt != '%') { axis_buf_putc(out, cap, &pos, *fmt++); continue; }
+        fmt++;
+        if (*fmt == '%') { axis_buf_putc(out, cap, &pos, '%'); fmt++; continue; }
+        int zero_pad = 0, width = 0, prec = -1, is_long = 0;
+        if (*fmt == '0') { zero_pad = 1; fmt++; }
+        while (*fmt >= '0' && *fmt <= '9') { width = width * 10 + (*fmt - '0'); fmt++; }
+        if (*fmt == '.') {
+            fmt++; prec = 0;
+            while (*fmt >= '0' && *fmt <= '9') { prec = prec * 10 + (*fmt - '0'); fmt++; }
+        }
+        if (*fmt == 'l') { is_long = 1; fmt++; }
+        switch (*fmt) {
+            case 's': {
+                const char* s = __builtin_va_arg(ap, const char*);
+                if (!s) s = "(null)";
+                int emitted = 0;
+                while (*s && (prec < 0 || emitted < prec)) { axis_buf_putc(out, cap, &pos, *s++); emitted++; }
+                break;
+            }
+            case 'd': {
+                long v = is_long ? __builtin_va_arg(ap, long) : (long)__builtin_va_arg(ap, int);
+                unsigned long uv;
+                if (v < 0) { axis_buf_putc(out, cap, &pos, '-'); uv = (unsigned long)(-(v + 1)) + 1ul; }
+                else uv = (unsigned long)v;
+                axis_buf_uint(out, cap, &pos, uv, 10, 0, width, zero_pad);
+                break;
+            }
+            case 'u': {
+                unsigned long uv = is_long ? __builtin_va_arg(ap, unsigned long) : (unsigned long)__builtin_va_arg(ap, unsigned int);
+                axis_buf_uint(out, cap, &pos, uv, 10, 0, width, zero_pad);
+                break;
+            }
+            case 'x':
+            case 'X': {
+                unsigned long uv = is_long ? __builtin_va_arg(ap, unsigned long) : (unsigned long)__builtin_va_arg(ap, unsigned int);
+                axis_buf_uint(out, cap, &pos, uv, 16, (*fmt == 'X'), width, zero_pad);
+                break;
+            }
+            case 'f': {
+                double dv = __builtin_va_arg(ap, double);
+                int p = (prec < 0) ? 2 : (prec > 6 ? 6 : prec);
+                if (dv < 0.0) { axis_buf_putc(out, cap, &pos, '-'); dv = -dv; }
+                unsigned long sc = 1ul;
+                for (int i = 0; i < p; i++) sc *= 10ul;
+                unsigned long scaled = (unsigned long)(dv * (double)sc + 0.5);
+                axis_buf_uint(out, cap, &pos, scaled / sc, 10, 0, 0, 0);
+                if (p > 0) {
+                    axis_buf_putc(out, cap, &pos, '.');
+                    axis_buf_uint(out, cap, &pos, scaled % sc, 10, 0, p, 1);
+                }
+                break;
+            }
+            default:
+                axis_buf_putc(out, cap, &pos, '%');
+                if (*fmt) axis_buf_putc(out, cap, &pos, *fmt);
+                break;
+        }
+        if (*fmt) fmt++;
+    }
+    __builtin_va_end(ap);
+    if (cap > 0) out[(pos < cap) ? pos : (cap - 1)] = '\0';
+    return (int)pos;
+}
 
 // -----------------------------------------------------------------------------
 // 1. User-Configurable Network & Local SI Hub Defaults (Override or set via /wifi)
@@ -352,7 +507,7 @@ static void renderHud(void) {
         fbFillRect(0, 14, TFT_W, 2, borderCol);
         fbDrawRect(0, 0, TFT_W, TFT_H, borderCol);
 
-        snprintf(buf, sizeof(buf), "%s // %s", g_stationCallsign, AXISOS_NODE_LABEL);
+        axis_snprintf(buf, sizeof(buf), "%s // %s", g_stationCallsign, AXISOS_NODE_LABEL);
         fbDrawStr(4, 4, buf, C_GOLD, 1);
 
         fbDrawStr(6, 20, railWarn ? "VBUS RAIL WARN" : g_stationRole, railWarn ? C_RED : C_WHITE, 2);
@@ -363,42 +518,42 @@ static void renderHud(void) {
         }
 
         if (WiFi.status() == WL_CONNECTED) {
-            snprintf(buf, sizeof(buf), "IP:%s SI READY", g_staIp);
+            axis_snprintf(buf, sizeof(buf), "IP:%s SI READY", g_staIp);
             fbDrawStr(6, 50, buf, C_GREEN, 1);
         } else {
             fbDrawStr(6, 50, "AP: 192.168.11.1 READY", C_ORANGE, 1);
         }
 
         fbFillRect(1, 63, TFT_W - 2, 16, C_PANEL);
-        snprintf(buf, sizeof(buf), "%.2fV  %.2fA  %.2fW  #%lu", g_usbVolts, g_usbAmps, g_usbWatts, (unsigned long)g_seq);
+        axis_snprintf(buf, sizeof(buf), "%.2fV  %.2fA  %.2fW  #%lu", g_usbVolts, g_usbAmps, g_usbWatts, (unsigned long)g_seq);
         fbDrawStr(5, 67, buf, railWarn ? C_RED : C_GOLD, 1);
     } else if (g_pageMode == 1) {
         fbFillRect(0, 0, TFT_W, 14, C_NAVY);
         fbDrawRect(0, 0, TFT_W, TFT_H, borderCol);
         fbDrawStr(4, 3, "CRUSAN & CO // VBUS HUD", C_GOLD, 1);
 
-        snprintf(buf, sizeof(buf), "%.2fV", g_usbVolts);
+        axis_snprintf(buf, sizeof(buf), "%.2fV", g_usbVolts);
         fbDrawStr(6, 18, buf, railWarn ? C_RED : C_GREEN, 2);
-        snprintf(buf, sizeof(buf), "%.2fA", g_usbAmps);
+        axis_snprintf(buf, sizeof(buf), "%.2fA", g_usbAmps);
         fbDrawStr(86, 18, buf, C_CYAN, 2);
-        snprintf(buf, sizeof(buf), "PWR: %.2fW  SAG:%lu", g_usbWatts, (unsigned long)g_sagEvents);
+        axis_snprintf(buf, sizeof(buf), "PWR: %.2fW  SAG:%lu", g_usbWatts, (unsigned long)g_sagEvents);
         fbDrawStr(6, 38, buf, C_GOLD, 1);
-        snprintf(buf, sizeof(buf), "IP: %s", g_staIp);
+        axis_snprintf(buf, sizeof(buf), "IP: %s", g_staIp);
         fbDrawStr(6, 50, buf, C_WHITE, 1);
         fbDrawStr(6, 62, "SI CONSOLE :80 ACTIVE", C_GREEN, 1);
     } else {
         fbFillRect(0, 0, TFT_W, 14, C_NAVY);
         fbDrawRect(0, 0, TFT_W, TFT_H, C_GOLD);
-        snprintf(buf, sizeof(buf), "DIAG // %s v%s", AXISOS_NODE_LABEL, FIRMWARE_VER);
+        axis_snprintf(buf, sizeof(buf), "DIAG // %s v%s", AXISOS_NODE_LABEL, FIRMWARE_VER);
         fbDrawStr(4, 3, buf, C_GOLD, 1);
 
-        snprintf(buf, sizeof(buf), "MAC: %s", g_macStr);
+        axis_snprintf(buf, sizeof(buf), "MAC: %s", g_macStr);
         fbDrawStr(6, 18, buf, C_WHITE, 1);
-        snprintf(buf, sizeof(buf), "HEAP: %lu B  CHAT: %lu", (unsigned long)ESP.getFreeHeap(), (unsigned long)g_chatCount);
+        axis_snprintf(buf, sizeof(buf), "HEAP: %lu B  CHAT: %lu", (unsigned long)ESP.getFreeHeap(), (unsigned long)g_chatCount);
         fbDrawStr(6, 30, buf, C_GOLD, 1);
-        snprintf(buf, sizeof(buf), "RSSI: %d DBM  HITS:%lu", (int)WiFi.RSSI(), (unsigned long)g_httpHits);
+        axis_snprintf(buf, sizeof(buf), "RSSI: %d DBM  HITS:%lu", (int)WiFi.RSSI(), (unsigned long)g_httpHits);
         fbDrawStr(6, 42, buf, C_GREEN, 1);
-        snprintf(buf, sizeof(buf), "UPTIME: %lu S", (unsigned long)(millis() / 1000));
+        axis_snprintf(buf, sizeof(buf), "UPTIME: %lu S", (unsigned long)(millis() / 1000));
         fbDrawStr(6, 54, buf, C_CYAN, 1);
         fbDrawStr(6, 66, "COME-AND-GET-IT: ARMED", C_GREEN, 1);
     }
@@ -425,7 +580,7 @@ static int performPureCOtaUpdate(const char* host_ip, uint16_t port, const char*
     setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 
     struct sockaddr_in srv;
-    memset(&srv, 0, sizeof(srv));
+    axis_memset(&srv, 0, sizeof(srv));
     srv.sin_family = AF_INET;
     srv.sin_port = htons(port);
     srv.sin_addr.s_addr = inet_addr(host_ip);
@@ -436,7 +591,7 @@ static int performPureCOtaUpdate(const char* host_ip, uint16_t port, const char*
     }
 
     char req[384];
-    int req_len = snprintf(req, sizeof(req),
+    int req_len = axis_snprintf(req, sizeof(req),
         "GET %s HTTP/1.0\r\nHost: %s:%u\r\nUser-Agent: AxisOS-ESP32-OTA/1.8.1\r\nConnection: close\r\n\r\n",
         url_path, host_ip, (unsigned)port);
     write(sock, req, req_len);
@@ -458,7 +613,7 @@ static int performPureCOtaUpdate(const char* host_ip, uint16_t port, const char*
                     break;
                 }
             }
-            if (hdr_end < 0 || memcmp(buf, "HTTP/1.", 7) != 0 || strstr((const char*)buf, " 200 ") == NULL) {
+            if (hdr_end < 0 || axis_memcmp(buf, "HTTP/1.", 7) != 0 || axis_strstr((const char*)buf, " 200 ") == NULL) {
                 close(sock);
                 return -4;
             }
@@ -505,9 +660,8 @@ static void urlDecode(const char* src, char* dst, size_t max_len) {
     size_t j = 0;
     for (size_t i = 0; src[i] && j + 1 < max_len; i++) {
         if (src[i] == '+') dst[j++] = ' ';
-        else if (src[i] == '%' && isxdigit((unsigned char)src[i+1]) && isxdigit((unsigned char)src[i+2])) {
-            char hex[3] = { src[i+1], src[i+2], '\0' };
-            dst[j++] = (char)strtol(hex, NULL, 16);
+        else if (src[i] == '%' && axis_hexval(src[i+1]) >= 0 && axis_hexval(src[i+2]) >= 0) {
+            dst[j++] = (char)((axis_hexval(src[i+1]) << 4) | axis_hexval(src[i+2]));
             i += 2;
         } else if (src[i] == '&' || src[i] == ' ' || src[i] == '\r' || src[i] == '\n') break;
         else dst[j++] = src[i];
@@ -518,12 +672,12 @@ static void urlDecode(const char* src, char* dst, size_t max_len) {
 static void extractQueryParam(const char* req, const char* key, char* out, size_t out_len) {
     out[0] = '\0';
     char pat1[32], pat2[32];
-    snprintf(pat1, sizeof(pat1), "?%s=", key);
-    snprintf(pat2, sizeof(pat2), "&%s=", key);
-    const char* p = strstr(req, pat1);
-    if (!p) p = strstr(req, pat2);
+    axis_snprintf(pat1, sizeof(pat1), "?%s=", key);
+    axis_snprintf(pat2, sizeof(pat2), "&%s=", key);
+    const char* p = axis_strstr(req, pat1);
+    if (!p) p = axis_strstr(req, pat2);
     if (p) {
-        p += strlen(key) + 2;
+        p += axis_strlen(key) + 2;
         urlDecode(p, out, out_len);
     }
 }
@@ -588,51 +742,52 @@ static void handleApiChat(int cfd, const char* req) {
     extractQueryParam(req, "q", q, sizeof(q));
     g_chatCount++;
 
-    snprintf(g_lastChatNote, sizeof(g_lastChatNote), "SI: %.22s", q[0] ? q : "PING");
+    axis_snprintf(g_lastChatNote, sizeof(g_lastChatNote), "SI: %.22s", q[0] ? q : "PING");
     for (int k = 0; g_lastChatNote[k]; k++) {
         if (g_lastChatNote[k] >= 'a' && g_lastChatNote[k] <= 'z') g_lastChatNote[k] -= 32;
     }
     renderHud();
 
     char low[192];
+    low[0] = '\0';
     for (size_t i = 0; i < sizeof(low) - 1 && q[i]; i++) {
-        low[i] = (char)tolower((unsigned char)q[i]);
+        low[i] = axis_tolower(q[i]);
         low[i+1] = '\0';
     }
-    if (!q[0]) strcpy(low, "status");
+    if (!q[0]) axis_strcpy(low, "status");
 
     char reply[512];
-    if (strstr(low, "power") || strstr(low, "volt") || strstr(low, "amp") || strstr(low, "vbus") || strstr(low, "brownout")) {
+    if (axis_strstr(low, "power") || axis_strstr(low, "volt") || axis_strstr(low, "amp") || axis_strstr(low, "vbus") || axis_strstr(low, "brownout")) {
         float margin_ma = (SBC_USB_CEILING_AMPS - g_usbAmps) * 1000.0f;
-        snprintf(reply, sizeof(reply),
+        axis_snprintf(reply, sizeof(reply),
             "VBUS Rail: %.2fV @ %.2fA (%.2fW). Sag events: %lu. Headroom below 1150 mA SBC USB ceiling: %.0f mA. %s",
             g_usbVolts, g_usbAmps, g_usbWatts, (unsigned long)g_sagEvents, margin_ma,
             (g_usbVolts >= VBUS_SAG_WARN_VOLTS && g_usbAmps < SBC_USB_CEILING_AMPS)
                 ? "Rail is within Green-Zone spec."
                 : "ALERT: VBUS sag or high load detected—offload spinning/NVMe drives to a powered hub!");
-    } else if (strstr(low, "wifi") || strstr(low, "mesh") || strstr(low, "network")) {
-        snprintf(reply, sizeof(reply),
+    } else if (axis_strstr(low, "wifi") || axis_strstr(low, "mesh") || axis_strstr(low, "network")) {
+        axis_snprintf(reply, sizeof(reply),
             "Uplink IP: %s (RSSI %d dBm). NAPT SoftAP '%s' active on 192.168.11.1/24 for companion RP2350 Pico nodes.",
             g_staIp, (int)WiFi.RSSI(), AXISOS_SOFTAP_SSID);
-    } else if (strstr(low, "ping") || strstr(low, "beacon") || strstr(low, "pico")) {
+    } else if (axis_strstr(low, "ping") || axis_strstr(low, "beacon") || axis_strstr(low, "pico")) {
         sendPureCUdpBeacon();
-        snprintf(reply, sizeof(reply),
+        axis_snprintf(reply, sizeof(reply),
             "Transmitted UDP :%u AXISDISC heartbeat frame (#%lu) with live %.2fV/%.2fA telemetry to companion micro-nodes.",
             (unsigned)UDP_DISC_PORT, (unsigned long)g_seq, g_usbVolts, g_usbAmps);
     } else {
-        snprintf(reply, sizeof(reply),
+        axis_snprintf(reply, sizeof(reply),
             "Tier-1 C99 silicon reflex active on %s (%s). VBUS: %.2fV/%.2fA (%.2fW), Free SRAM: %lu B, Uptime: %lu s.",
             AXISOS_NODE_LABEL, BOARD_TYPE, g_usbVolts, g_usbAmps, g_usbWatts,
             (unsigned long)ESP.getFreeHeap(), (unsigned long)(millis() / 1000));
     }
 
     char body[768];
-    int body_len = snprintf(body, sizeof(body),
+    int body_len = axis_snprintf(body, sizeof(body),
         "{\"ok\":true,\"node\":\"%s\",\"agent\":\"%s // C99-SI\",\"reply\":\"%s\",\"volts\":%.2f,\"amps\":%.2f,\"watts\":%.2f}\n",
         AXISOS_NODE_ID, AXISOS_NODE_LABEL, reply, g_usbVolts, g_usbAmps, g_usbWatts);
 
     char hdr[256];
-    int hdr_len = snprintf(hdr, sizeof(hdr),
+    int hdr_len = axis_snprintf(hdr, sizeof(hdr),
         "HTTP/1.1 200 OK\r\nContent-Type: application/json; charset=utf-8\r\nContent-Length: %d\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n",
         body_len);
     send(cfd, hdr, hdr_len, 0);
@@ -641,7 +796,7 @@ static void handleApiChat(int cfd, const char* req) {
 
 static void sendConsoleHtml(int cfd) {
     char mid[768];
-    snprintf(mid, sizeof(mid),
+    axis_snprintf(mid, sizeof(mid),
         "<div class='hdr'>"
         "<h1>Crusan &amp; Co. // %s Inline USB SI Console</h1>"
         "<p>Board: <b>%s</b> &middot; Firmware: <b>v%s</b> &middot; 360&deg; Air-Gapped Green Zone</p>"
@@ -654,15 +809,15 @@ static void sendConsoleHtml(int cfd) {
         g_usbVolts, g_usbAmps, g_usbWatts,
         g_staIp, (int)WiFi.RSSI(), AXISOS_SOFTAP_SSID);
 
-    int total_len = (int)strlen(CONSOLE_HTML_P1) + (int)strlen(mid) + (int)strlen(CONSOLE_HTML_P2);
+    int total_len = (int)axis_strlen(CONSOLE_HTML_P1) + (int)axis_strlen(mid) + (int)axis_strlen(CONSOLE_HTML_P2);
     char hdr[256];
-    int hdr_len = snprintf(hdr, sizeof(hdr),
+    int hdr_len = axis_snprintf(hdr, sizeof(hdr),
         "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %d\r\nConnection: close\r\n\r\n",
         total_len);
     send(cfd, hdr, hdr_len, 0);
-    send(cfd, CONSOLE_HTML_P1, strlen(CONSOLE_HTML_P1), 0);
-    send(cfd, mid, strlen(mid), 0);
-    send(cfd, CONSOLE_HTML_P2, strlen(CONSOLE_HTML_P2), 0);
+    send(cfd, CONSOLE_HTML_P1, axis_strlen(CONSOLE_HTML_P1), 0);
+    send(cfd, mid, axis_strlen(mid), 0);
+    send(cfd, CONSOLE_HTML_P2, axis_strlen(CONSOLE_HTML_P2), 0);
 }
 
 // -----------------------------------------------------------------------------
@@ -713,12 +868,12 @@ static void connectUplinkWifi(void) {
 
     uint8_t mac[6];
     WiFi.macAddress(mac);
-    snprintf(g_macStr, sizeof(g_macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
+    axis_snprintf(g_macStr, sizeof(g_macStr), "%02X:%02X:%02X:%02X:%02X:%02X",
              mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     const char* target_ssid = (g_customSsid[0] != '\0') ? g_customSsid : AXISOS_UPLINK_SSID;
     const char* target_pass = (g_customSsid[0] != '\0') ? g_customPass : AXISOS_UPLINK_PASS;
-    if (strcmp(target_ssid, "YOUR_PRIMARY_WIFI_SSID") == 0) return;
+    if (axis_strcmp(target_ssid, "YOUR_PRIMARY_WIFI_SSID") == 0) return;
 
     WiFi.disconnect(false, true);
     delay(100);
@@ -729,7 +884,7 @@ static void connectUplinkWifi(void) {
     }
     if (WiFi.status() == WL_CONNECTED) {
         IPAddress ip = WiFi.localIP();
-        snprintf(g_staIp, sizeof(g_staIp), "%u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
+        axis_snprintf(g_staIp, sizeof(g_staIp), "%u.%u.%u.%u", ip[0], ip[1], ip[2], ip[3]);
         WiFi.AP.enableNAPT(true);
         renderHud();
     }
@@ -784,7 +939,7 @@ static void releaseUsbPassthrough(void) {
 static void sendPureCUdpBeacon(void) {
     if (g_udpSock < 0 || WiFi.status() != WL_CONNECTED) return;
     char beacon[320];
-    int blen = snprintf(beacon, sizeof(beacon),
+    int blen = axis_snprintf(beacon, sizeof(beacon),
         "AXISDISC|%s|%s|%s|seq:%lu|v:%.2fV|a:%.2fA|w:%.2fW|sag:%lu|heap:%lu|fw:%s",
         AXISOS_NODE_ID, BOARD_TYPE, g_staIp,
         (unsigned long)g_seq, g_usbVolts, g_usbAmps, g_usbWatts,
@@ -821,23 +976,23 @@ static void pollPureCHttpSockets(void) {
             if (n <= 0) break;
             total_r += n;
             req[total_r] = '\0';
-            if (strstr(req, "\r\n\r\n") != NULL) break;
+            if (axis_strstr(req, "\r\n\r\n") != NULL) break;
         }
         g_httpHits++;
 
-        if (strncmp(req, "GET /ota", 8) == 0) {
+        if (axis_strncmp(req, "GET /ota", 8) == 0) {
             const char* ack = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nConnection: close\r\n\r\n{\"status\":\"OTA_TRIGGERED\"}\n";
-            send(cfd, ack, strlen(ack), 0);
+            send(cfd, ack, axis_strlen(ack), 0);
             close(cfd);
             performPureCOtaUpdate(AXISOS_LOCAL_SI_HUB_IP, AXISOS_OTA_PORT, OTA_BIN_PATH);
             return;
         }
-        if (strncmp(req, "GET /api/chat", 13) == 0) {
+        if (axis_strncmp(req, "GET /api/chat", 13) == 0) {
             handleApiChat(cfd, req);
             close(cfd);
             return;
         }
-        if (strncmp(req, "GET /wifi?", 10) == 0) {
+        if (axis_strncmp(req, "GET /wifi?", 10) == 0) {
             char n_ssid[48], n_pass[48];
             extractQueryParam(req, "ssid", n_ssid, sizeof(n_ssid));
             extractQueryParam(req, "pass", n_pass, sizeof(n_pass));
@@ -846,23 +1001,23 @@ static void pollPureCHttpSockets(void) {
                 g_prefs.putString("ssid", n_ssid);
                 g_prefs.putString("pass", n_pass);
                 g_prefs.end();
-                strncpy(g_customSsid, n_ssid, sizeof(g_customSsid) - 1);
-                strncpy(g_customPass, n_pass, sizeof(g_customPass) - 1);
+                axis_strncpy(g_customSsid, n_ssid, sizeof(g_customSsid) - 1);
+                axis_strncpy(g_customPass, n_pass, sizeof(g_customPass) - 1);
             }
             const char* wresp = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nConnection: close\r\n\r\n{\"ok\":true,\"message\":\"Saved Wi-Fi to NVS! Reconnecting...\"}\n";
-            send(cfd, wresp, strlen(wresp), 0);
+            send(cfd, wresp, axis_strlen(wresp), 0);
             close(cfd);
             if (n_ssid[0] != '\0') { connectUplinkWifi(); initPureCSockets(); }
             return;
         }
-        if (strncmp(req, "GET /chat", 9) == 0 || (i == 0 && strncmp(req, "GET / ", 6) == 0)) {
+        if (axis_strncmp(req, "GET /chat", 9) == 0 || (i == 0 && axis_strncmp(req, "GET / ", 6) == 0)) {
             sendConsoleHtml(cfd);
             close(cfd);
             return;
         }
 
         char body[640];
-        int body_len = snprintf(body, sizeof(body),
+        int body_len = axis_snprintf(body, sizeof(body),
             "{\"status\":\"ONLINE\",\"company\":\"Crusan & Co.\",\"platform\":\"AxisOS\","
             "\"node_id\":\"%s\",\"board\":\"%s\",\"firmware\":\"%s\","
             "\"sta_ip\":\"%s\",\"ap_ssid\":\"%s\",\"ap_ip\":\"192.168.11.1\","
@@ -872,7 +1027,7 @@ static void pollPureCHttpSockets(void) {
             (int)WiFi.RSSI(), (unsigned long)(millis() / 1000), (unsigned long)ESP.getFreeHeap(),
             g_usbVolts, g_usbAmps, g_usbWatts, (unsigned long)g_sagEvents);
         char hdr[200];
-        int hdr_len = snprintf(hdr, sizeof(hdr),
+        int hdr_len = axis_snprintf(hdr, sizeof(hdr),
             "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: %d\r\nConnection: close\r\n\r\n", body_len);
         send(cfd, hdr, hdr_len, 0);
         send(cfd, body, body_len, 0);
@@ -889,8 +1044,8 @@ void setup(void) {
     String p = g_prefs.getString("pass", "");
     g_prefs.end();
     if (s.length() > 0) {
-        strncpy(g_customSsid, s.c_str(), sizeof(g_customSsid) - 1);
-        strncpy(g_customPass, p.c_str(), sizeof(g_customPass) - 1);
+        axis_strncpy(g_customSsid, s.c_str(), sizeof(g_customSsid) - 1);
+        axis_strncpy(g_customPass, p.c_str(), sizeof(g_customPass) - 1);
     }
 
     tftInit();

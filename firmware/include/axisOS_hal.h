@@ -1,18 +1,17 @@
-/******************************************************************************
- * File:        firmware/include/axisOS_hal.h
- * Description: AxisOS Hardware Abstraction Layer API (GPIO, CYW43 LED, ADC die temp & VBAT, I2C0, SPI0).
- * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
- * Date:        2026110901
- * Version:     v1.8.1-Silicon
- ******************************************************************************/
+// -----------------------------------------------------------------------------
+// File:        firmware/include/axisOS_hal.h
+// Description: AxisOS Hardware Abstraction Layer API (GPIO, CYW43 LED, ADC die temp & VBAT, I2C0, SPI0).
+// Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+// Date:        2026112302
+// Version:     v1.8.3-Silicon
+// -----------------------------------------------------------------------------
+// 2026112302 (MFC/AGY) Replaced <stdint.h>/<stdbool.h>/<stddef.h> with freestanding axis-types.h.
 // 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #ifndef AXISOS_HAL_H
 #define AXISOS_HAL_H
 
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
+#include "axis-types.h"
 #include "axisOS_core.h"
 
 /* -----------------------------------------------------------------------

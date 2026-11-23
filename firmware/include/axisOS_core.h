@@ -1,17 +1,17 @@
-/******************************************************************************
- * File:        firmware/include/axisOS_core.h
- * Description: AxisOS core subsystem API (status codes, hardware watchdog, millisecond tick, structured logging).
- * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
- * Date:        2026110901
- * Version:     v1.8.1-Silicon
- ******************************************************************************/
+// -----------------------------------------------------------------------------
+// File:        firmware/include/axisOS_core.h
+// Description: AxisOS core subsystem API (status codes, hardware watchdog, millisecond tick, structured logging).
+// Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+// Date:        2026112302
+// Version:     v1.8.3-Silicon
+// -----------------------------------------------------------------------------
+// 2026112302 (MFC/AGY) Replaced <stdint.h>/<stdbool.h> with freestanding axis-types.h and exported core_puts/core_printf.
 // 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #ifndef AXISOS_CORE_H
 #define AXISOS_CORE_H
 
-#include <stdint.h>
-#include <stdbool.h>
+#include "axis-types.h"
 
 /* -----------------------------------------------------------------------
  *  Return codes
@@ -55,6 +55,8 @@ typedef enum {
 } axisOS_log_level_t;
 
 void core_log_set_level(axisOS_log_level_t level);
+void core_puts(const char *s);
+void core_printf(const char *fmt, ...);
 void core_log(axisOS_log_level_t level, const char *tag, const char *fmt, ...);
 
 #define LOG_D(tag, fmt, ...) core_log(LOG_LEVEL_DEBUG, tag, fmt, ##__VA_ARGS__)

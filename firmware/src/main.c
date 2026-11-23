@@ -1,13 +1,13 @@
-/******************************************************************************
- * File:        firmware/src/main.c
- * Description: AxisOS main entry point for Raspberry Pi Pico 2 W (RP2350) with bio-heartbeat scheduler task and watchdog protection.
- * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
- * Date:        2026110901
- * Version:     v1.8.1-Silicon
- ******************************************************************************/
+// -----------------------------------------------------------------------------
+// File:        firmware/src/main.c
+// Description: AxisOS main entry point for Raspberry Pi Pico 2 W (RP2350) with bio-heartbeat scheduler task and watchdog protection.
+// Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+// Date:        2026112302
+// Version:     v1.8.3-Silicon
+// -----------------------------------------------------------------------------
+// 2026112302 (MFC/AGY) Eliminated <stdio.h>; routed boot banner and diagnostics through freestanding core_puts/core_printf and normalized SOP header.
 // 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
-#include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 #include "hardware/watchdog.h"
@@ -24,14 +24,14 @@
  *  Boot banner
  * --------------------------------------------------------------------- */
 static void print_banner(void) {
-    printf("\r\n");
-    printf("  +==========================================+\r\n");
-    printf("  |   Crusan & Co. // AxisOS v%-15s|\r\n", AXISOS_VERSION_STRING);
-    printf("  |   Codename: %-29s|\r\n", AXISOS_VERSION_CODENAME);
-    printf("  |   Board   : %-29s|\r\n", AXISOS_TARGET_BOARD);
-    printf("  |   Channel : %-29s|\r\n", AXISOS_RELEASE_CHANNEL);
-    printf("  +==========================================+\r\n");
-    printf("\r\n");
+    core_puts("\r\n");
+    core_puts("  +==========================================+\r\n");
+    core_printf("  |   Crusan & Co. // AxisOS v%-15s|\r\n", AXISOS_VERSION_STRING);
+    core_printf("  |   Codename: %-29s|\r\n", AXISOS_VERSION_CODENAME);
+    core_printf("  |   Board   : %-29s|\r\n", AXISOS_TARGET_BOARD);
+    core_printf("  |   Channel : %-29s|\r\n", AXISOS_RELEASE_CHANNEL);
+    core_puts("  +==========================================+\r\n");
+    core_puts("\r\n");
 }
 
 /* -----------------------------------------------------------------------
@@ -47,7 +47,7 @@ static void heartbeat_task(void *ctx) {
  * --------------------------------------------------------------------- */
 static void watchdog_init_safe(void) {
     if (watchdog_caused_reboot()) {
-        printf("[WARN] System recovered from watchdog reset.\r\n");
+        core_puts("[WARN] System recovered from watchdog reset.\r\n");
     }
     watchdog_enable(AXISOS_WDT_TIMEOUT_MS, true);
 }
@@ -64,18 +64,18 @@ int main(void) {
 
     print_banner();
 
-    printf("[BOOT] Clock speed : %lu MHz\r\n", (unsigned long)(clock_get_hz(clk_sys) / 1000000));
-    printf("[BOOT] Build stamp : %s\r\n", AXISOS_VERSION_BUILD);
+    core_printf("[BOOT] Clock speed : %lu MHz\r\n", (unsigned long)(clock_get_hz(clk_sys) / 1000000));
+    core_printf("[BOOT] Build stamp : %s\r\n", AXISOS_VERSION_BUILD);
 
     /* --- Hardware Abstraction Layer --- */
     if (hal_init() != AXISOS_OK) {
-        printf("[ERROR] HAL init failed — halting.\r\n");
+        core_puts("[ERROR] HAL init failed — halting.\r\n");
         while (true) tight_loop_contents();
     }
 
     /* --- CYW43 / Wi-Fi chip --- */
     if (cyw43_arch_init()) {
-        printf("[ERROR] CYW43 init failed — halting.\r\n");
+        core_puts("[ERROR] CYW43 init failed — halting.\r\n");
         while (true) tight_loop_contents();
     }
 
@@ -89,7 +89,7 @@ int main(void) {
     /* --- Watchdog --- */
     watchdog_init_safe();
 
-    printf("[BOOT] AxisOS ready.\r\n\r\n");
+    core_puts("[BOOT] AxisOS ready.\r\n\r\n");
 
     /* --- Main loop --- */
     while (true) {

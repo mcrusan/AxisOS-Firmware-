@@ -1,14 +1,15 @@
-/******************************************************************************
- * File:        firmware/src/axisOS_tasks.c
- * Description: AxisOS cooperative task scheduler with full slot reclamation on tasks_unregister().
- * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
- * Date:        2026110901
- * Version:     v1.8.1-Silicon
- ******************************************************************************/
+// -----------------------------------------------------------------------------
+// File:        firmware/src/axisOS_tasks.c
+// Description: AxisOS cooperative task scheduler with full slot reclamation on tasks_unregister().
+// Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+// Date:        2026112302
+// Version:     v1.8.3-Silicon
+// -----------------------------------------------------------------------------
+// 2026112302 (MFC/AGY) Eliminated <stdio.h>; routed tasks_dump() through freestanding core_puts/core_printf.
+// 2026112301 (MFC/AGY) Replaced <string.h> with Marc's freestanding axis-string.h (axis_memset / axis_strncpy).
 // 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
-#include <string.h>
-#include <stdio.h>
+#include "axis-string.h"
 #include "axisOS_tasks.h"
 #include "axisOS_core.h"
 
@@ -39,7 +40,7 @@ static bool         s_ready      = false;
  *  Public API
  * --------------------------------------------------------------------- */
 axisOS_status_t tasks_init(void) {
-    memset(s_tasks, 0, sizeof(s_tasks));
+    axis_memset(s_tasks, 0, sizeof(s_tasks));
     s_task_count = 0;
     s_ready      = true;
     LOG_I(TAG, "Task scheduler ready. Max slots: %u", AXISOS_MAX_TASKS);
@@ -61,8 +62,8 @@ axisOS_status_t tasks_register(const char *name, task_fn_t fn, void *ctx,
     if (slot == AXISOS_TASK_INVALID) return AXISOS_ERR_NOMEM;
 
     task_entry_t *t = &s_tasks[slot];
-    memset(t, 0, sizeof(task_entry_t));
-    strncpy(t->name, name ? name : "unnamed", AXISOS_TASK_NAME_LEN - 1);
+    axis_memset(t, 0, sizeof(task_entry_t));
+    axis_strncpy(t->name, name ? name : "unnamed", AXISOS_TASK_NAME_LEN - 1);
     t->fn          = fn;
     t->ctx         = ctx;
     t->period_ms   = period_ms;
@@ -108,19 +109,19 @@ axisOS_status_t tasks_resume(task_id_t id) {
 
 axisOS_status_t tasks_unregister(task_id_t id) {
     if (id >= s_task_count || !s_tasks[id].active) return AXISOS_ERR_NOT_FOUND;
-    memset(&s_tasks[id], 0, sizeof(task_entry_t));
+    axis_memset(&s_tasks[id], 0, sizeof(task_entry_t));
     s_tasks[id].active = false;
     return AXISOS_OK;
 }
 
 void tasks_dump(void) {
-    printf("\r\n--- Task Table ---\r\n");
+    core_puts("\r\n--- Task Table ---\r\n");
     for (uint8_t i = 0; i < s_task_count; i++) {
         task_entry_t *t = &s_tasks[i];
-        printf("  [%02u] %-24s  %5lu ms  runs=%-8lu  %s\r\n",
-               i, t->name, (unsigned long)t->period_ms,
-               (unsigned long)t->run_count,
-               t->suspended ? "SUSPENDED" : (t->active ? "ACTIVE" : "INACTIVE"));
+        core_printf("  [%02u] %-24s  %5lu ms  runs=%-8lu  %s\r\n",
+                    i, t->name, (unsigned long)t->period_ms,
+                    (unsigned long)t->run_count,
+                    t->suspended ? "SUSPENDED" : (t->active ? "ACTIVE" : "INACTIVE"));
     }
-    printf("------------------\r\n\r\n");
+    core_puts("------------------\r\n\r\n");
 }

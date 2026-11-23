@@ -1,18 +1,18 @@
-/******************************************************************************
- * File:        firmware/include/axisOS_wifi.h
- * Description: AxisOS CYW43439 Wi-Fi station manager API and connection state definitions.
- * Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
- * Date:        2026111001
- * Version:     v1.8.1-Silicon
- ******************************************************************************/
+// -----------------------------------------------------------------------------
+// File:        firmware/include/axisOS_wifi.h
+// Description: AxisOS CYW43439 Wi-Fi station manager API and connection state definitions.
+// Author:      Marc F. Crusan (MFC) / Crusan & Co. w/ PP & AGY (AXEL)
+// Date:        2026112302
+// Version:     v1.8.3-Silicon
+// -----------------------------------------------------------------------------
+// 2026112302 (MFC/AGY) Replaced <stdint.h>/<stdbool.h> with freestanding axis-types.h.
 // 2026111001 (MFC/AGY) Removed unused macros WIFI_SSID_MAX_LEN, WIFI_PASS_MAX_LEN, and WIFI_RETRY_COUNT.
 // 2026110901 (MFC/PP/AGY) Upgraded to canonical Crusan & Co. 5-Field SOP Header standard.
 
 #ifndef AXISOS_WIFI_H
 #define AXISOS_WIFI_H
 
-#include <stdint.h>
-#include <stdbool.h>
+#include "axis-types.h"
 #include "axisOS_core.h"
 
 /* -----------------------------------------------------------------------
